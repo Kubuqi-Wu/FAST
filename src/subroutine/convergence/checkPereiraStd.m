@@ -1,0 +1,82 @@
+function [converged, lowerBound, meanCost, stdVal] = checkPereiraStd(lattice, solutionForward, params)
+
+stopWhen = params.stop.stopWhen ; % 'pereira', 'std', 'pereira and std', 'never'
+pereiraCoef = params.stop.pereiraCoef ;
+stdMcCoef = params.stop.stdMcCoef ; 
+
+H       = size(solutionForward, 1) ;
+McCount = size(solutionForward, 2) ;
+
+% LowerBound
+costFirstStage = zeros(McCount, 1) ;
+for m = 1:McCount
+    costFirstStage(m) = solutionForward{1,m}.costWithTheta ; % If we have only one node at first stage, they should all be the same
+end
+if params.algo.deterministic
+    lowerBound = dot(lattice.scenarioTableProba,costFirstStage) ;
+else
+    lowerBound = mean(costFirstStage) ; % They should all be the same
+end
+
+% UpperBound & Std
+cost = zeros(H, McCount) ;
+for t = 1:H
+    for m = 1:McCount
+        cost(t,m) = solutionForward{t,m}.costWithoutTheta ;
+    end
+end
+cost = sum(cost,1) ;
+stdVal = std(cost) ; 
+if params.algo.deterministic
+    meanCost = dot(lattice.scenarioTableProba,cost) ;
+else
+    meanCost = mean(cost) ;
+end
+
+% Check criterions
+pereiraCriterionMet = lowerBound >= meanCost - pereiraCoef * stdVal / sqrt(McCount) ;
+stdMcCriterionMet = stdVal / sqrt(McCount) <= stdMcCoef * abs(lowerBound) ;
+
+% Return wether, according to stopWhen, we should stop or not
+checkPereira = strcmp(stopWhen,'pereira') || strcmp(stopWhen,'pereira and std') ;
+checkStdMc   = strcmp(stopWhen,'std')     || strcmp(stopWhen,'pereira and std') ;
+if strcmp(stopWhen,'pereira')
+    converged = pereiraCriterionMet ;
+elseif strcmp(stopWhen,'std')
+    converged = stdMcCriterionMet ;
+elseif strcmp(stopWhen,'pereira and std')
+    converged = pereiraCriterionMet && stdMcCriterionMet ;
+elseif strcmp(stopWhen,'never')
+    converged = false ;
+else
+    error('Wrong params.stop.stopWhen parameter') ;
+end
+
+% Display stuff
+if params.verbose >= 1
+    fprintf('LowerBound                                 : %e\n', lowerBound) ;
+    fprintf('MeanForwardCost                            : %e\n', meanCost) ; 
+    fprintf('Std                                        : %e\n', stdVal) ;
+    fprintf('95 pc confidence interval around mean cost : [%e   %e]\n', meanCost-2*stdVal/sqrt(McCount), meanCost+2*stdVal/sqrt(McCount)) ;
+    fprintf('95 pc confidence interval for solution     : [%e   %e]\n', lowerBound, meanCost+2*stdVal/sqrt(McCount)) ;
+    fprintf('Pereira''s  criterion (%17s) : %s\n',checkOrNot(checkPereira), metOrNot(pereiraCriterionMet)) ;
+    fprintf('StdMc      criterion (%17s) : %s\n',checkOrNot(checkStdMc),    metOrNot(stdMcCriterionMet)) ;   
+end
+
+end
+
+function str = metOrNot(boolean)
+if boolean
+    str = 'met' ;
+else
+    str = 'not met' ;
+end
+end
+
+function str = checkOrNot(boolean)
+if boolean
+    str = 'to be checked' ;
+else
+    str = 'not to be checked' ;
+end
+end

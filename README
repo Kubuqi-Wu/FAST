@@ -1,0 +1,14 @@
+README
+------
+
+FAST (Finally A Sddp Toolbox), an sddp toolbox written in Matlab
+
+src contains sources
+examples contains example to learn how to use the toolbox
+demo contains informations
+
+See LICENSE for the license, and INSTALL for installation instructions
+
+See the toolbox website, currently hosted at http://baemerick.be/fast/
+
+Authors: Leopold Cambier and Damien Scieur
