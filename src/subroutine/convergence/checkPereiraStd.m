@@ -34,7 +34,9 @@ else
 end
 
 % Check criterions
-pereiraCriterionMet = lowerBound >= meanCost - pereiraCoef * stdVal / sqrt(McCount) ;
+peireiraLb = meanCost - pereiraCoef * stdVal / sqrt(McCount) ;
+peireiraUb = meanCost + pereiraCoef * stdVal / sqrt(McCount) ;
+pereiraCriterionMet = lowerBound >= peireiraLb ;
 stdMcCriterionMet = stdVal / sqrt(McCount) <= stdMcCoef * abs(lowerBound) ;
 
 % Return wether, according to stopWhen, we should stop or not
@@ -55,12 +57,13 @@ end
 % Display stuff
 if params.verbose >= 1
     fprintf('LowerBound                                 : %e\n', lowerBound) ;
-    fprintf('MeanForwardCost                            : %e\n', meanCost) ; 
-    fprintf('Std                                        : %e\n', stdVal) ;
+    fprintf('Mean(ForwardCosts)   (K = %3.1d)             : %e\n', McCount, meanCost) ; 
+    fprintf('Std(ForwardCosts)    (K = %3.1d)             : %e\n', McCount, stdVal) ;
     fprintf('95 pc confidence interval around mean cost : [%e   %e]\n', meanCost-2*stdVal/sqrt(McCount), meanCost+2*stdVal/sqrt(McCount)) ;
     fprintf('95 pc confidence interval for solution     : [%e   %e]\n', lowerBound, meanCost+2*stdVal/sqrt(McCount)) ;
-    fprintf('Pereira''s  criterion (%17s) : %s\n',checkOrNot(checkPereira), metOrNot(pereiraCriterionMet)) ;
-    fprintf('StdMc      criterion (%17s) : %s\n',checkOrNot(checkStdMc),    metOrNot(stdMcCriterionMet)) ;   
+    fprintf('Confidence interval desired (coef %2.1e) : [%e   %e]\n', pereiraCoef, peireiraLb, peireiraUb) ;
+    fprintf('Pereira''s  criterion (%17s)   : %s\n',checkOrNot(checkPereira), metOrNot(pereiraCriterionMet)) ;
+    fprintf('StdMc      criterion (%17s)   : %s\n',checkOrNot(checkStdMc),    metOrNot(stdMcCriterionMet)) ;   
 end
 
 end
