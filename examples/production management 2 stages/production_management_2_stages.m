@@ -14,7 +14,7 @@ lattice = lattice.initExpectedLattice(@(t,i) demand(t,i,demandVector,nNodes)) ;
 params = sddpSettings('stop.iterationMax',20,...
                       'algo.McCount',200,...
                       'stop.pereiraCoef',1e-6,...                     
-                      'algo.deterministic',true,...
+                      'algo.deterministic',false,...
                       'verbose',1,...
                       'algo.minTheta',-20,...
                       'solver','gurobi') ;
@@ -42,10 +42,28 @@ end
 
 % Computing EV
 [EV,~,solutionEV] = expectedValue(lattice,params);
-EV
+fprintf('EV = %f\n', EV) ;
 
-% Plotting value function
-lattice.graph{1}{1}.plotCuts(1:2,[0 0],[5 5],false) ;
+% Getting cuts
+[cutCoeffs, cutRHS] = lattice.getCuts(1, 1, x) ;
+% Plotting cuts + objective
+% since coeffs * x + theta >= rhs
+% we have theta >= rhs - coeffs^t x
+% and we can thus plot that
+[x1, x2] = meshgrid(0:0.1:5, 0:0.1:5) ;
+vx = zeros(size(x1)) ;
+obj = zeros(size(x1)) ;
+for i = 1:size(x1, 1)
+    for j = 1:size(x1, 2) 
+        vxall = cutRHS - cutCoeffs * [x1(i,j) ; x2(i,j)] ;        
+        vx(i,j) = max(vxall) ; % Since we take the max
+        obj(i,j) = x1(i,j) + 2*x2(i,j) ;
+    end
+end
+figure ; 
+surf(x1, x2, vx + obj) ;
+
+% Plotting the real analytical value
 plotVx() ;
 
 

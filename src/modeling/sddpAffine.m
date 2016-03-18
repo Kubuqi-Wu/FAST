@@ -260,6 +260,22 @@ classdef sddpAffine % Linear + Affine expression
             end
         end
         
+        function out = isVariable(self)
+            if numel(self.ids) ~= 1
+                out = false ; 
+                return ;
+            elseif self.indep ~= 0
+                out = false ;
+                return ;
+            elseif self.coefs ~= 1
+                out = false ;
+                return ;
+            else
+                out = true ;
+                return ;
+            end
+        end
+        
         function disp(self)
             s = size(self) ;
             str = num2str(s(1)) ;

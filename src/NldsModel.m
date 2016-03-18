@@ -110,7 +110,7 @@ classdef NldsModel
             % Basically, x = [x(t) t]
             % and        b = [h - Txtrial ; 
             %                 cuts ;
-            %                 theta lower bound
+            %                 theta lower bound]
             %
             % Warning! xTrial is supposed to be the output of function
             % model.extract_xTrial(x), used with the model at the previous
@@ -214,7 +214,21 @@ classdef NldsModel
             idxToUpdate = ~ isnan(newPrimalSolution) ;
             primalSolution(idxToUpdate) = newPrimalSolution(idxToUpdate) ;            
         end
-                                        
+        
+        function [cutCoeffs, cutRHS] = getCutsCoeffs(model, variables)
+            modelVarIdx = model.modelVarIdx ;
+            varsVarIdx = [variables.ids]' ;
+            cutRHS = model.cutRHS ;
+            cutCoeffs = zeros(size(model.cutCoeffs)) ;
+            if any(size(modelVarIdx) ~= size(varsVarIdx)) || any(sort(modelVarIdx) ~= sort(varsVarIdx))
+                error('Variables should be the same than the one in the model, up to a reordering') ;
+            end
+            for i = 1:size(cutCoeffs, 2)
+                j = find(modelVarIdx == varsVarIdx(i)) ;
+                cutCoeffs(:, i) = model.cutCoeffs(:, j) ;
+            end            
+        end
+                                                     
         function model = clearCuts(model)
             model.cutCoeffs = [];
             model.cutRHS = [];

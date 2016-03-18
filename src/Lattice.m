@@ -251,7 +251,7 @@ classdef Lattice
                         WN = lattice.graph{t}{n}.model.W ;
                         if any(size(W1) ~= size(WN)) || ...
                                 any(W1(:) ~= WN(:))
-                            error('The constraints involving x(t) (i.e. the W matrix) should be the same at a given stage') ; ;
+                            error('The constraints involving x(t) (i.e. the W matrix) should be the same at a given stage') ;
                         end
                     end
                 end
@@ -371,6 +371,23 @@ classdef Lattice
         end
         
         function primalSolution = getPrimalSolution(lattice, variable, solutionForward)
+        %GETPRIMALSOLUTION Primal solution of a forward pass
+        %
+        % x = lattice.GETPRIMALSOLUTION(variable, solutionForward) (where
+        % solutionForward is the output of forwardPass) returns the values
+        % corresponding to variable in x.
+        %
+        % Example: 
+        % x = sddpVar()
+        % (...)
+        % output = sddp(...)
+        % lattice = output.lattice
+        % for i = 1:5
+        %   [~,~,~,solution] = forwardPass(lattice,lattice.randomPath(),params) ;    
+        %   xVec(i) = lattice.getPrimalSolution(x, solution) ;        
+        % end
+        %
+        % See also FORWARDPASS
             if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
                 error('solutionForward should be a cell of H elements') ;
             end
@@ -379,6 +396,33 @@ classdef Lattice
                 model = lattice.graph{t}{1}.model ;
                 primalSolution = model.updatePrimalSolution(primalSolution, variable, solutionForward{t}) ;
             end
+        end
+        
+        function [cutsCoeffs, cutsRHS] = getCuts(lattice, time, scenarioId, variables)
+        %GETCUTSCOEFFS Get cut coeffs and RHS at a given node
+        %
+        % [coeffs, rhs] = lattice.GETCUTSCOEFFS(time, scenarioId,
+        % variables) returns the coefficients of variables at node (time,
+        % scenarioId).
+        % variables should contains exactly the variables involved at node
+        % (time, scenarioId), in any order. The order of the coefficients
+        % in the output is the same as the order of the variables provided.
+        % So variables is an array of sddpVar().
+        %
+        % Internally, the cuts are stored as
+        % coeffs^t x + theta >= rhs
+        %
+        % See also GETPRIMALSOLUTION
+            if ~ isvector(variables)
+                error('sddp:Lattice:getCutsCoeffs','Variables should be a vector (row or column) of sddpVar()') ;
+            end
+            variables = variables(:) ;
+            for i = 1:numel(variables)
+                if ~ variables(i).isVariable()
+                    error('sddp:Lattice:getCutsCoeffs','Variables should only contain independant variables') ;
+                end
+            end
+            [cutsCoeffs, cutsRHS] = lattice.graph{time}{scenarioId}.model.getCutsCoeffs(variables) ;       
         end
         
         function lattice = initExpectedLattice(lattice, data)
