@@ -17,21 +17,24 @@ function params = sddpSettings(varargin)
 %   * solver ('linprog') : the solver to be used : 'linprog', 'mosek', 'gurobi', 'glpk'
 %
 %   * log.useDiary (false) : true if you want to write the log file on disk, false otherwise
-%   * log.saveTempResults (false) : true if you want to save temps results
 %   * log.logFile ('sddp.log') : the name of the log file
+%   * log.saveTempResults (false) : true if you want to save temps results
+%   in the folder log.resultsFolder
 %   * log.resultsFolder ('results') : the result folder where temp
 %   results are stored
 %
-%   * algo.McCount (5) : the number of monte-carlo trials
+%   * algo.McCount (5) : the number of monte-carlo trials to use at each
+%   iteration
 %   * algo.purgeCuts (false) : wether the algorithm should remove too old
 %   cuts
 %   * algo.purgeCutsNumber (500) : the number of cuts to keep. The algorithm will 
-%   keep the last 500 cuts while removing the older ones and the duplicates
-%   * algo.minTheta (-1e3) : the lower bound on theta
+%   keep the last algo.purgeCutsNumber cuts while removing the older ones and the duplicates
+%   * algo.minTheta (-1e3) : the lower bound on theta. Necessary to avoid
+%   unboundedness at the beginning.
 %   * algo.deterministic (false) : true if you want to have a deterministic
 %   algorithm. In this case, the algorithm will explore ALL possible
 %   scenarios. Use with caution, since this number of scenario can be quite
-%   high
+%   high. This will discard the value of algo.McCount.
 %   * algo.checkRedondance (true) : check redondance when adding a cut, in
 %   order to avoid duplicate. Usefull, but take some times (~10/15%).
 %   * algo.redondanceTol (1e-6) : the relative tolerance, to decide when
@@ -39,7 +42,7 @@ function params = sddpSettings(varargin)
 %
 %   * stop.timeMin (0) : the minimum time the algorithm should run. SDPP will not
 %   stop before timeMin
-%   * stop.timeMax (inf) : the maximum time. SDDP will stop after immediately 
+%   * stop.timeMax (inf) : the maximum time. SDDP will stop immediately 
 %   after timeMax
 %   * stop.iterationMin (0) : the minimum number of iteration
 %   * stop.iterationMax (20) : the maximum number of iteration
@@ -52,16 +55,20 @@ function params = sddpSettings(varargin)
 %   criterion. 1 corresponds to a 68% confidence interval, 2 to a 95%, etc.
 %   The smaller the more precise.
 %   * stop.stdMcCoef (0) : the coefficient in the minimum std criterion.
-%   * stop.regular (true) : wether the algorithm can stop during normal computation 
-%   * stop.precise (false) : wether the algorithm can stop during the
-%   "precise" computation
+%   * stop.regular (true) : if set to true, the stopping criterion is
+%   check at each iteration using the algo.McCount trials
+%   * stop.precise (false) : if set to true, the stopping critetion is check 
+%   during the "precise" computations (see below).
 %
 %   * precise.compute (false) : wether the algorithm should do "big batch"
-%   of forward pass every x iteration to compute a precise mean cost
-%   * precise.computeEnd (false) : wether SDDP should run a big batch of
-%   forward pass after termination, to get a precise mean cost
-%   * precise.iterationStep (inf) : the value of x in precise.compute
-%   * precise.count (0) : the number of MC at each precise run
+%   of forward pass every precise.iterationStep iteration to compute a 
+%   precise mean cost
+%   * precise.iterationStep (inf) : the number of iterations between two
+%   precise computation
+%   * precise.count (0) : the number of Monte-Carlo trials at each precise
+%   computation.
+%   * precise.computeEnd (false) : wether SDDP should run a "big batch" of
+%   forward pass after termination, to get a precise final mean cost
 %
 %   Other parameters should not be modified by the user
 %
