@@ -1,4 +1,4 @@
-function output = sddp(lattice,params)
+function output = sddp(lattice,params)  
 %% SDDP Stochastic Dynamic Dual Programming
 %
 % output = SDDP(lattice)
