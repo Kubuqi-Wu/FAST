@@ -173,11 +173,9 @@ disp(' ')
 disp('Now, we need to define the variables we will use in our problem.')
 disp('Here, we only need x (of size [1 x 1]) and s (size [1 x 1]).')
 disp('So we build a function returning a structure with these two variables.')
-disp('Note the ''full'' argument : it is a good habit to always put that ')
-disp('(see Yalmip documentation for more info).')
 disp('>>    function var = declareVariables()')
-disp('>>        var.x = sdpvar(1,1,''full'') ;')
-disp('>>        var.s = sdpvar(1,1,''full'') ;')
+disp('>>        var.x = sddpVar(1,1) ;')
+disp('>>        var.s = sddpVar(1,1) ;')
 disp('>>    end')
 disp(' ')
 disp('Press any key to launch this call...')
@@ -186,11 +184,9 @@ disp(' ')
 pause
 idx=idx+1;
 
-
-    function var = declareVariables()
-        var.x = sdpvar(1,1,'full') ;
-        var.s = sdpvar(1,1,'full') ;
-    end
+variables.x = sddpVar(1,1) ;
+variables.s = sddpVar(1,1) ;
+    
 
 
 
@@ -201,18 +197,20 @@ disp('   Step (3) : NDLS declaration')
 disp('   ------------------------------')
 disp(' ')
 disp('Finally, we need to create the function that, at each node,') 
-disp('return the NDLS problem')
+disp('return the NLDS problem')
 disp(' ')
 disp('We have to write a function like:')
-disp('>> function [constraints, objective] = ndls(scenario, var)')
+disp('>> function [constraints, objective] = ndls(scenario)')
 disp(' ')
-disp('Where var are the variables declared before (in our example, we ')
-disp('have var.x and vax.s) and scenario contains information about where')
-disp('we are in the lattice, like scenario.time (the stage), scenario.idx ')
-disp('(the index of the node) and in scenario.data (in our case, equal to ')
-disp('the demand d(scenario.idx)).')
-disp(' ')
-disp('The function must return Yalmip constraints and Yalmip objective for')
+
+disp('This function should, one way or another, have access to the variables')
+disp('we just declared. You could for example pass these variables doing')
+disp('>> nlds = @(scenario) nlds(scenario, var)') ;
+
+disp('Scenario contains information about where we are in the lattice, ')
+disp('like scenario.time (the stage), scenario.idx (the index of the node) ')
+disp('and scenario.data (in our case, equal to the demand d(scenario.idx)).')
+disp('The function must return constraints and objective for')
 disp('the node (scenario.time,scenario.idx).')
 disp(' ')
 disp('Press any key to continue...')
@@ -229,8 +227,8 @@ disp('We will now see what we must put in this function.')
 disp('First, we get all required data:')
 disp('>> C = 1;')
 disp('>> S = 2;')
-disp('>> x = var.x;')
-disp('>> s = var.s;')
+disp('>> x = variables.x;')
+disp('>> s = variales.s;')
 disp(' ')
 disp('Press any key to continue...')
 disp(' ')
@@ -305,11 +303,11 @@ fprintf('\n\n%g / %g \n',idx,tot)
 disp(' ')
 disp('Here is the complete function.')
 disp(' ')
-disp('>>    function [cntr, obj] = ndls(scenario, var)')
+disp('>>    function [cntr, obj] = ndls(scenario, variables)')
 disp('>>        C 	= 1 ;')
 disp('>>        S 	= 2 ;')
-disp('>>        x   = var.x ;')
-disp('>>        s   = var.s ;')
+disp('>>        x   = variables.x ;')
+disp('>>        s   = variables.s ;')
 disp('>>        if(scenario.time == 1)')
 disp('>>            cntr = x >= 0 ;')
 disp('>>            obj  = C * x ;')
@@ -327,7 +325,7 @@ disp('Press any key to launch this call...')
 pause
 idx=idx+1;
 
-    function [cntr, obj] = ndls(scenario, var)
+    function [cntr, obj] = nlds(scenario, var)
         C 	= 1 ;
         S 	= 2 ;
         x   = var.x ;
@@ -377,17 +375,17 @@ disp('   ------------------------------')
 disp(' ')
 disp('We are now abble to solve our problem with SDDP algorithm.')
 disp('The followings are the settings.')
-disp('params = sddpSettings(''yalmip.declareVariables'',@declareVariables,...')
-disp('    ''algo.McCount'',2, ...')
-disp('    ''algo.iterationMax'',10,...')
+disp('params = sddpSettings(algo.McCount'',2, ...')
+disp('    ''stop.iterationMax'',10,...')
 disp('    ''solver'',''linprog'') ;')
 disp(' ')
 disp('You can leave the default one, but it is a good idea to take a look')
 disp('at the documentation to see what all of them have to do with')
 disp('>> help sddpsettings')
 disp(' ')
-disp('Now, just type')
-disp('>> output = sddp(@ndls,lattice,params) ;')
+disp('Now, finally, we need to build the lattice')
+disp('>> lattice = lattice.compileLattice(@nlds(scenario)nlds(scenario,variables),params) ;') ;
+disp('>> output = sddp(lattice,params) ;')
 disp(' ')
 disp('Press any key to launch this call...')
 disp(' ')
@@ -396,11 +394,11 @@ pause
 idx=idx+1;
 
 
-params = sddpSettings('yalmip.declareVariables',@declareVariables,...
-    'algo.McCount',2, ...
-    'algo.iterationMax',10,...
+params = sddpSettings('algo.McCount',2, ...
+    'stop.iterationMax',10,...
     'solver','linprog') ;
-output = sddp(@ndls,lattice,params) ;
+lattice = lattice.compileLattice(@(scenario)nlds(scenario,variables),params) ;
+output = sddp(lattice,params) ;
 
 
 
