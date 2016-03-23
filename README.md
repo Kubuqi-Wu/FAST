@@ -7,7 +7,7 @@
 - `examples` contains examples to learn how to use the toolbox.
 - `tests` containes the tests. Used for development purposes only.
 
-FAST is open-source. See `LICENSE` for the license, and `INSTALL` for installation instructions
+FAST is open-source. See `LICENSE` for the license, and `INSTALL.md` for installation instructions
 
 See the toolbox website, currently hosted [here](http://baemerick.be/fast/)
 

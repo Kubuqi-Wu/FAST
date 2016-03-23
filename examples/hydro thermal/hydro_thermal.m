@@ -46,9 +46,6 @@ output = sddp(lattice,params) ;
 % Visualise output
 plotOutput(output) ;
 
-% Visualise cuts
-plotCuts(output.lattice.graph{1}{1},1,0,10,false) ;
-
 % Forward passes
 lattice = output.lattice ;
 nForward = 5 ;

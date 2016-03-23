@@ -352,7 +352,17 @@ classdef Lattice
             hold off ;
         end
         
-        
+        % Return the nth deterministic path
+        function path = deterministicPath(lattice, n)
+            sce = [];
+            path = zeros(lattice.H,1) ;
+            for t=1:lattice.H
+                sce = lattice.nextDeterministicScenario(sce,n);
+                path(t) = sce.index;
+            end
+        end
+            
+        % Return a random path
         function path = randomPath(lattice)
             sce = [];
             path = zeros(lattice.H,1);

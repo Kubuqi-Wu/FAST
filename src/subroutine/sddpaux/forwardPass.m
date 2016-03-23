@@ -18,7 +18,7 @@ function [objectiveVal,costByStage,lbByStage,solutionForward] = forwardPass(latt
 %     is a struct() with the solution of stage t (with the same values as
 %     in sddp)
 %
-%   See also SDDP, LATTICE, SDDPSETTINGS
+%   See also SDDP, LATTICE, SDDPSETTINGS, BACKWARDPASS
  
 H = lattice.getH();
 costByStage = zeros(H,1);
@@ -31,7 +31,7 @@ for time = 1:H
     elseif strcmp(path,'random')
         scenarioCurrent = lattice.nextRandomScenario(scenarioCurrent) ;
     else    
-        error('forwardPass::path should either be a vector of index or ''random''.') ;
+        error('fast::forwardPass::path should either be a vector of index or ''random''.') ;
     end
     if(time > 1)
         solutionForward{time} = scenarioCurrent.solve(solutionForward{time-1}, time==H, params) ;

@@ -84,52 +84,21 @@ while ~ converged
     % Iteration info
     displayMessage(sprintf('-------------\nIteration %d\n-------------', iteration), params, 1) ;
     startTime = tic() ;
-    solutionForward = cell(H,McCount);
+    solutionForward = cell(H, McCount);
     
-    % Forward pass (parallel ? should be possible)
+    % Forward pass
     for Mc = 1:McCount
-        scenarioCurrent = [] ;
-        for time = 1:H
-            if params.algo.deterministic % Full NLDS (without randomness)
-                scenarioCurrent = lattice.nextDeterministicScenario(scenarioCurrent, Mc) ;
-            else
-                scenarioCurrent = lattice.nextRandomScenario(scenarioCurrent) ;
-            end
-            displayMessage(sprintf('%d) %d - %d forward pass',Mc, time, scenarioCurrent.index), params, 2) ;
-            if(time > 1)
-                solutionForward{time,Mc} = scenarioCurrent.solve(solutionForward{time-1,Mc}, time==H, params) ;
-            else
-                solutionForward{1,Mc}    = scenarioCurrent.solve([], time==H, params) ;
-            end
-        end
+        displayMessage(sprintf('%d) forward pass',Mc), params, 2) ;        
+        if params.algo.deterministic 
+            path = lattice.deterministicPath(Mc) ;
+        else
+            path = lattice.randomPath() ;
+        end              
+        [~,~,~,solutionForward(:,Mc)] = forwardPass(lattice, path, params) ;
     end
     
-    % Backward pass (parallel ?)
-    for time = H:-1:2
-        % Retreive nodes at previous stage
-        scenarioPreviousCells = lattice.getScenariosCells(time-1) ;
-        L = length(scenarioPreviousCells) ;
-        cutRHS = zeros(L,McCount) ;
-        cutCoeffs = cell(L,McCount) ;
-        for Mc = 1:McCount
-            scenarioCurrent = [] ;
-            while true
-                scenarioCurrent = lattice.explore(scenarioCurrent,time);
-                if isempty(scenarioCurrent)
-                    break ;
-                end
-                displayMessage(sprintf('%d) %d - %d backward pass',Mc, time, scenarioCurrent.getIndex()), params, 2) ;
-                solutionBackward = scenarioCurrent.solve(solutionForward{time-1,Mc}, time==H, params) ;
-                for idxPrevious = 1:L
-                    [cutCoeffs{idxPrevious, Mc}, cutRHS(idxPrevious, Mc)] = buildCut(cutCoeffs{idxPrevious, Mc}, cutRHS(idxPrevious, Mc), solutionBackward, scenarioPreviousCells{idxPrevious}, scenarioCurrent);
-                end
-            end
-        end
-        % Add cuts to the scenario at previous stage (gaffe parallel)
-        for idxPrevious = 1:L
-            lattice = lattice.addCuts(scenarioPreviousCells{idxPrevious}, cutCoeffs(idxPrevious,:), cutRHS(idxPrevious,:), params) ;
-        end
-    end
+    % Backward pass
+    lattice = backwardPass(lattice, solutionForward, params) ;    
     
     % Convergence and stuff
     [convergedRegular, lowerBounds(iteration), meanCost(iteration), stds(iteration)] = checkPereiraStd(lattice, solutionForward, params) ;
@@ -139,9 +108,7 @@ while ~ converged
         convergedPrecise = false ;
     end
     
-    paramsType.stop.iterationMin = 0 ;
-    paramsType.stop.iterationMax = inf ;
-    
+    % Check stopping criterion
     if iteration <= params.stop.iterationMin || toc(startTimeAlgo) <= params.stop.timeMin
         converged = false ;
     elseif iteration < params.stop.iterationMax && toc(startTimeAlgo) < params.stop.timeMax
