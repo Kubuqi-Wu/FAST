@@ -1,6 +1,6 @@
-# Installation instructions
+# Installation
 
-### Installation requirements:
+### Installation requirements
 - Matlab (FAST has been developped and tested on Matlab R2015a)
 - One of the following solvers :
   * Linprog (from the optimization toolbox)
@@ -8,7 +8,7 @@
   * Mosek
   * GLPK
 
-### Installation instructions :
+### Installation instructions
 1. Unzip this package, and put it anywhere you want
 2. Add to the Matlab path :
   * The src folder of this toolbox
