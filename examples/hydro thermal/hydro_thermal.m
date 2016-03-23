@@ -3,7 +3,7 @@
 % We can use some fuel at a price C (5) to meet demand d (6).
 % From stage to stage, water can been stored in the reservoir, but there is
 % a tank limit V (8).
-%
+
 % With these values, in the case of a two stage problem, the value function
 % V(x1) at stage 1 is
 %   V(x1) = 30 - 0.5 ( 5 min(x1+2,6) + 5 min(x1+10,6) )
@@ -23,9 +23,9 @@
 % How to create a simple lattice
 clc ; close all ; clear all ;
 
-H = 2 ;
+H = 5 ;
 
-% Creating a simple 6 stages lattice with 2 nodes at second stage
+% Creating a simple 5 stages lattice with 2 nodes at second stage
 lattice = Lattice.latticeEasy(H, 2, @rainfall) ;
 
 % Visualisation
@@ -33,10 +33,9 @@ figure ;
 lattice.plotLattice(@(data) num2str(data)) ;
 
 % Run SDDP
-params = sddpSettings('algo.McCount',2, ...
+params = sddpSettings('algo.McCount',25, ...
                       'stop.iterationMax',10,...                      
-                      'stop.pereiraCoef',0.01,...
-                      'algo.deterministic',true,...
+                      'stop.pereiraCoef',2,...                   
                       'solver','gurobi') ;
 var.x = sddpVar(H) ; % The reservoir level at time t
 var.y = sddpVar(H) ; % For how much we use the water at time t
@@ -49,3 +48,17 @@ plotOutput(output) ;
 
 % Visualise cuts
 plotCuts(output.lattice.graph{1}{1},1,0,10,false) ;
+
+% Forward passes
+lattice = output.lattice ;
+nForward = 5 ;
+objVec = zeros(nForward,1);
+x = zeros(nForward,H);
+y = zeros(nForward,H);
+p = zeros(nForward,H);
+for  i = 1:nForward
+    [objVec(i),~,~,solution] = forwardPass(lattice,'random',params) ;    
+    x(i,:) = lattice.getPrimalSolution(var.x, solution) ;
+    y(i,:) = lattice.getPrimalSolution(var.y, solution) ;
+    p(i,:) = lattice.getPrimalSolution(var.p, solution) ;
+end

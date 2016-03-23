@@ -4,6 +4,10 @@ low = 2 ;
 if t == 1
     out = (high + low)/2 ;
 else
-    out = (i == 1) * low + (i == 2) * high ;
+    if i == 1
+        out = low ;
+    else
+        out = high ;
+    end
 end
 end

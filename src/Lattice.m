@@ -326,7 +326,7 @@ classdef Lattice
                 for i = 1:nNodes % Add node
                     currentT = t ;
                     currentI = i-(1+nNodes)/2  ;
-                    plot(currentT,currentI,'.','MarkerSize',20) ;
+                    plot(currentT,currentI,'.b','MarkerSize',20) ;
                     text(currentT+0.03,currentI+0.03,[num2str(lattice.graph{t}{i}.index) ' ' dataToString(lattice.graph{t}{i}.data)]) ;
                     if t < lattice.H % Add links with weight = proba
                         nNodesNext = length(lattice.graph{t+1}) ;
@@ -338,7 +338,7 @@ classdef Lattice
                             x = (currentT+nextT)/2 ;
                             y = (currentI+nextI)/2 ;
                             
-                            plot([currentT nextT],[currentI nextI],'LineWidth',2*proba) ;
+                            plot([currentT nextT],[currentI nextI],'b','LineWidth',2*proba) ;
                             
                             angle = atand(nextI - currentI) ;
                             

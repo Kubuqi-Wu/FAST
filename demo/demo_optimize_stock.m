@@ -66,9 +66,9 @@ lattice = lattice.compileLattice(@(scenario)nlds(scenario,x,s)) ;
 % The followings are the settings.
 % You can leave the default one, but it's a good idea to take a look at the
 % documentation to see what all of them have to do
-params = sddpSettings('algo.McCount',10, ...
+params = sddpSettings('algo.McCount',25, ...
                       'stop.iterationMax',10,...
-                      'stop.pereiraCoef',0.1,...
+                      'stop.pereiraCoef',2,...
                       'solver','gurobi') ; % You need to adapt this for your solver.                  
 output = sddp(lattice,params) ;
 lattice = output.lattice ;
@@ -79,7 +79,7 @@ lattice = output.lattice ;
 plotOutput(output) ;
 % We also see that the cost at the end is -2.
 
-% Finally, retreive the solution.
+%% 5. Finally, retreive the solution.
 % To do so, we do some 'forwardPass', and for each forward pass we extract
 % the solution x and s.
 nForward = 10 ;
@@ -92,10 +92,3 @@ disp('x') ;
 disp(xVal) ;
 disp('s') ;
 disp(sVal) ;
-
-
-
-
-
-
-
