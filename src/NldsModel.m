@@ -155,6 +155,12 @@ classdef NldsModel
             xTrial = x(model.forwardIdx);
         end
         
+        % Solve the NLDSModel at a given node
+        %   solutionPreviousTime is a struct that should contain the trials field
+        %     trials should be the output of extractXTrial at the previous
+        %     node
+        %   withoutTheta is a bool
+        %   params is as usual
         function [solution, diagnostics] = solve(model, solutionPreviousTime, withoutTheta, params)            
             if ~ isempty(solutionPreviousTime)
                 [A,b,obj,k] = model.getOptiProb(solutionPreviousTime.trials,withoutTheta,params) ;
