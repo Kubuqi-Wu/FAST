@@ -12,3 +12,11 @@ FAST is open-source. See `LICENSE` for the license, and `INSTALL.md` for install
 See the toolbox website, currently hosted [here](http://baemerick.be/fast/)
 
 Authors: [Leopold Cambier](https://people.stanford.edu/lcambier) and Damien Scieur
+
+## Changelog
+
+- 0.9.0b (beta) : initial commit
+- 0.9.1b (beta) 
+  * Adding the possibility to extract cuts from the lattice
+  * Adding the possibility to precut the lattice using some heuristic policy
+  * Multiple other minor changes
