@@ -187,7 +187,7 @@ else
     params.solver = 'linprog' ;
     
     % Version
-    params.version.id = '0.9.0b' ;
+    params.version.id = '0.9.1b' ;
     params.version.type = 'beta' ; % dev, alpha, beta or release 
     params.version.warning = 'This is still a beta version. Use with caution :-)' ;
     params.version.copyright = 'FAST  Copyright (C) 2015-2016, Cambier Léopold and Scieur Damien.\nThis program comes with ABSOLUTELY NO WARRANTY; for details see the LICENSE file.\nThis is free software, and you are welcome to redistribute it under the conditions of the GPLv3 license. See the LICENSE file.' ;
