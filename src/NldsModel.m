@@ -3,7 +3,7 @@ classdef NldsModel
     %       min c'x(t) + t + k
     % s.t.  Wx(t) >= h - Tx(t-1)
     %       x(t-1) fixed
-    %      [t >= cuts]
+    %      [t >= cuts <=> cutCoefs + t >= cutRHS]
     %       k is a constant
     
     properties

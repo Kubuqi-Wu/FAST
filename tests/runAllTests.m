@@ -33,6 +33,11 @@ clear all ;
 sddpDeterministicTests = matlab.unittest.TestSuite.fromClass(?SddpDeterministicTest);
 run(sddpDeterministicTests);
 
+clear all ;
+
+precutTests = matlab.unittest.TestSuite.fromClass(?PrecutTests);
+run(precutTests);
+
 
 
 

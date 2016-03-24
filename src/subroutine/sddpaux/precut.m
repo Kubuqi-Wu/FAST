@@ -8,7 +8,8 @@ function lattice = precut(lattice, variables, values, params)
 %   variables is an array of sddpVar, and values are the corresponding
 %   values
 %   All the variables of the model should be present in variables, in any
-%   order.
+%   order. Additional variables can be present. In this case, their
+%   corresponding value is ignored.
 %   For variables from stage t that do not appear in stage t+1, the value
 %   can be arbitrary.
 %
