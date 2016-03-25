@@ -237,7 +237,7 @@ for idArg = paramstart:nargin
         % What is is real name in params-name table ?
         idName = strmatch(lower(arg),lowerNames,'exact') ;         
         if isempty(idName)
-            error('Argument %s does''nt match any parameters name.',arg) ;
+            error('Argument %s doesn''t match any parameters name.',arg) ;
         elseif numel(idName) > 1
             error('Argument %s match multiple parameters name.',arg) ;
         end
