@@ -38,6 +38,11 @@ clear all ;
 precutTests = matlab.unittest.TestSuite.fromClass(?PrecutTests);
 run(precutTests);
 
+clear all ;
+
+dualsTests = matlab.unittest.TestSuite.fromClass(?DualsTests);
+run(dualsTests);
+
 
 
 

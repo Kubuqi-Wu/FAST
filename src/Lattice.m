@@ -442,12 +442,12 @@ classdef Lattice
             end
         end
         
-        function dualSolution = getDualSolution(lattice, constraints, solutionForward)
+        function dualSolution = getDualSolution(lattice, constraint, solutionForward)
         %GETDUALSOLUTION Dual solution of a forward pass
         %
-        % pi = lattice.GETDUALSOLUTION(constraints, solutionForward) (where
+        % pi = lattice.GETDUALSOLUTION(constraint, solutionForward) (where
         % solutionForward if the output of forwardpass) returns the values
-        % corresponding to constraints in pi.         
+        % corresponding to constraint in pi.         
         %
         % ! Warning : You need to make sure you understand what you are doing
         % here. The definition of the duals is not completely obvious. We
@@ -458,7 +458,7 @@ classdef Lattice
         % !! About the signs : dual multipliers are always a bit tricky to
         % define. We use the relatively standard definition of sensitivity.
         %
-        % !!! About constraints : to use this function, you need to have access
+        % !!! About constraint : to use this function, you need to have access
         % to the actual constraint object used to define the NLDS. This
         % means you may have to define the constraints *outside* of the
         % NLDS function (like you already do for the variables).
@@ -466,6 +466,8 @@ classdef Lattice
         % same accross the nodes of a given stage. If you provide
         % constraints from different nodes of a given stage, the result is
         % undefined (and, most likely, crap).
+        % Note that you then may NOT use the same constraint at different
+        % nodes at a given stage. If you do so, the result is underfined.
         % 
         % See also FORWARDPASS, GETPRIMALSOLUTION
         
@@ -474,14 +476,24 @@ classdef Lattice
             if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
                 error('solutionForward should be a cell of H elements') ;
             end
-            dualSolution = nan(size(constraints)) ;
+            if numel(constraint) ~= 1
+                error('constraint should be a 1x1 sddpConstraint array') ;
+            end
+            
+            cntrIdx = constraint.id ;
             for t = 1:lattice.H
                 for n = 1:length(lattice.graph{t}) % Constraints change from scenario to scenario
-                    model = lattice.graph{t}{n}.model ;
-                    dualSolution = model.updateDualSolution(dualSolution, constraints, solutionForward{t}) ;
+                    cntrIdxHN = lattice.graph{t}{n}.model.modelCntrIdx ;
+                    found = find(cntrIdx == cntrIdxHN, 1) ;
+                    if ~ isempty(found)
+                        lambda = solutionForward{t}.dualCntr ;
+                        ids = cntrIdxHN ;                        
+                        dualSolution = constraint.dual(ids, lambda) ;
+                        return 
+                    end                    
                 end                
-            end        
-            
+            end 
+            error('constraint not found in the lattice') ;
         end
         
         

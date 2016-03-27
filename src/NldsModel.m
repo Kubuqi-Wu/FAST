@@ -210,16 +210,20 @@ classdef NldsModel
         end   
         
         function primalSolution = updatePrimalSolution(model, primalSolution, variable, solution)
+        % primalSolution and variable have the same size
+        % primalSolution can contain nans.
+        % solution is solutionForward{t} for some t, and should contain
+        % the field primal
             if any(size(primalSolution) ~= size(variable))
                 error('primalSolution shoudl have the same size as x variable') ;
             end
-            if ~ isstruct(solution)
+            if ~ isstruct(solution) || ~ isfield(solution, 'primal')
                 error('solution should be a struct() with field primal') ;
             end
             newPrimalSolution = doubleBatch(variable, model.modelVarIdx, solution.primal) ;
             idxToUpdate = ~ isnan(newPrimalSolution) ;
             primalSolution(idxToUpdate) = newPrimalSolution(idxToUpdate) ;            
-        end
+        end       
         
         function [cutCoeffs, cutRHS] = getCutsCoeffs(model, variables)
             modelVarIdx = model.modelVarIdx ;

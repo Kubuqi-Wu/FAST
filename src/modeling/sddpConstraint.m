@@ -139,7 +139,7 @@ classdef sddpConstraint
             if strcmp(self.type, '<=') 
                 out(:) = - lambda(idsCheck(:)) ;    
             elseif strcmp(self.type, '>=')
-                out(:) =  lambda(idsCheck(:)) ;            
+                out(:) =   lambda(idsCheck(:)) ;            
             elseif strcmp(self.type, '==')
                 L = lambda(idsCheck) ;
                 L1 = L(1:end/2) ; % corresponds to the modeling of >=
