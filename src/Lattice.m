@@ -268,7 +268,6 @@ classdef Lattice
         end
         
         function lattice = generateExpectedModels(lattice, ndls, params)
-            % Need to be rewritten anyway
             error('Not implemented yet') ;
         end
         
@@ -287,12 +286,18 @@ classdef Lattice
             lattice.graph{time}{index} = lattice.graph{time}{index}.addCut(cutCoeffs, cutRHS, params) ;
         end
         
-        % Display models
         function displayModels(lattice)
+        %DISPLAYMODELS Print all the NLDS models
+        %
+        % lattice.displayModels() prints, for each node, the model
+        %      NLDS(t,k) = min c' x(t) + cst
+        %                  W x(t) >= h(k) - T(k) x(t-1) 
+        % along with the variables and constraintes indices in modeling
+        % space (i.e., corresponding to x.ids and cntr.ids)
             for t = 1:lattice.H
                 for s = 1:length(lattice.graph{t})
                     fprintf('%d -- %d\n',t,s) ;
-                    disp('min c''x(t)+k s.t. Wx(t) >= h - Tx(t-1)') ;
+                    disp('min c''x(t) + k s.t. Wx(t) >= h - Tx(t-1)') ;
                     disp('c') ;
                     disp(lattice.graph{t}{s}.model.c)
                     disp('k') ;
@@ -311,8 +316,19 @@ classdef Lattice
             end
         end
         
-        % Plot the lattice
         function lattice = plotLattice(lattice,dataToString)
+        %PLOTLATTICE Plots the lattice
+        %
+        % lattice = lattice.PLOTLATTICE() plots the lattice,
+        % without creating a new figure.
+        % Each node is displayed as
+        %                         id
+        % lattice = lattice.PLOTLATTICE(dataToString) plots the lattice,
+        % without creating a new figure.
+        % Each node is displayed as
+        %                         id data       
+        % where data is the output of dataToString(scenario.data)
+        
             if nargin == 1
                 dataToString = @(data) '' ;
             elseif isempty(dataToString)
@@ -352,8 +368,15 @@ classdef Lattice
             hold off ;
         end
         
-        % Return the nth deterministic path
+        
         function path = deterministicPath(lattice, n)
+        %DETERMINISTICPATH Returns the nth deterministic path
+        %
+        % path = lattice.DETERMINISTICPATH(n) returns the nth deterministic
+        % path, where path = [i1 ; i2 ; ... ; iH] and where i1 ... iH are
+        % the indexes of the scenario (node) at each stage
+        %
+        % See also RANDOMPATH
             sce = [];
             path = zeros(lattice.H,1) ;
             for t=1:lattice.H
@@ -362,8 +385,16 @@ classdef Lattice
             end
         end
             
-        % Return a random path
+        
         function path = randomPath(lattice)
+        %RANDOMPATH Returns a random path in the lattice
+        %
+        % path = lattice.RANDOMPATH() returns a random path in the lattice
+        % path = [i1 ; i2 ; ... ; iH] where i1 ... iH are the indexes of
+        % the scenario (node) at each stage.
+        %
+        % See also DETERMINISTICPATH
+            
             sce = [];
             path = zeros(lattice.H,1);
             for t=1:lattice.H
@@ -373,6 +404,9 @@ classdef Lattice
         end
         
         function lattice = clearCuts(lattice)
+        %CLEARCUTS Remove all cuts
+        %
+        % lattice = lattice.CLEARCUTS() removes all cuts from lattice
             for i=1:lattice.H
                 for j=1:length(lattice.graph{i})
                     lattice.graph{i}{j}.model = lattice.graph{i}{j}.model.clearCuts();
@@ -397,16 +431,59 @@ classdef Lattice
         %   xVec(i) = lattice.getPrimalSolution(x, solution) ;        
         % end
         %
-        % See also FORWARDPASS
+        % See also FORWARDPASS, GETDUALSOLUTION
             if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
                 error('solutionForward should be a cell of H elements') ;
             end
             primalSolution = nan(size(variable)) ;
-            for t = 1:lattice.H
+            for t = 1:lattice.H % Variables do *not* change from scenario to scenario
                 model = lattice.graph{t}{1}.model ;
                 primalSolution = model.updatePrimalSolution(primalSolution, variable, solutionForward{t}) ;
             end
         end
+        
+        function dualSolution = getDualSolution(lattice, constraints, solutionForward)
+        %GETDUALSOLUTION Dual solution of a forward pass
+        %
+        % pi = lattice.GETDUALSOLUTION(constraints, solutionForward) (where
+        % solutionForward if the output of forwardpass) returns the values
+        % corresponding to constraints in pi.         
+        %
+        % ! Warning : You need to make sure you understand what you are doing
+        % here. The definition of the duals is not completely obvious. We
+        % here just return the duals of the constraint in a given forward
+        % pass. You may want to check getCuts which may make more sense in
+        % your application.
+        % 
+        % !! About the signs : dual multipliers are always a bit tricky to
+        % define. We use the relatively standard definition of sensitivity.
+        %
+        % !!! About constraints : to use this function, you need to have access
+        % to the actual constraint object used to define the NLDS. This
+        % means you may have to define the constraints *outside* of the
+        % NLDS function (like you already do for the variables).
+        % Note that, as opposed to variables, constraints are *not* the
+        % same accross the nodes of a given stage. If you provide
+        % constraints from different nodes of a given stage, the result is
+        % undefined (and, most likely, crap).
+        % 
+        % See also FORWARDPASS, GETPRIMALSOLUTION
+        
+            warning('Need to be double checked regarding the signs, especially with different solvers. Remove this warning if you feel confident !') ;
+        
+            if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
+                error('solutionForward should be a cell of H elements') ;
+            end
+            dualSolution = nan(size(constraints)) ;
+            for t = 1:lattice.H
+                for n = 1:length(lattice.graph{t}) % Constraints change from scenario to scenario
+                    model = lattice.graph{t}{n}.model ;
+                    dualSolution = model.updateDualSolution(dualSolution, constraints, solutionForward{t}) ;
+                end                
+            end        
+            
+        end
+        
         
         function [cutsCoeffs, cutsRHS] = getCuts(lattice, time, scenarioId, variables)
         %GETCUTSCOEFFS Get cut coeffs and RHS at a given node
@@ -434,6 +511,10 @@ classdef Lattice
             end
             [cutsCoeffs, cutsRHS] = lattice.graph{time}{scenarioId}.model.getCutsCoeffs(variables) ;       
         end
+        
+        
+        
+        
         
         function lattice = initExpectedLattice(lattice, data)
             
