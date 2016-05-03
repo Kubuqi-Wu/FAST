@@ -2,8 +2,6 @@ function matrix = fillMatrix(vector)
 if numel(vector) == 1
     matrix = (1:vector(end))' ;
 else
-    size = prod(vector) ;
-    matrix = zeros(size,length(vector)) ;         
     size = prod(vector) ; % rows
     l = vector(end) ; % columns        
     matrix = zeros(size, length(vector)) ;
