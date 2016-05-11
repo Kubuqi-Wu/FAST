@@ -130,7 +130,7 @@ for i=1:H
     scenarioCurrent = lattice.graph{i}{path(i)} ;
     nVar = size(scenarioCurrent.model.W,2);
     solutionForward{i}.primal = x(switchIdxSol+(1:nVar));
-    solutionForward{i}.trials = lattice.graph{i}{path(i)}.model.extractXTrial(solutionForward{i}.x);
-    solutionForward{i}.costWithoutTheta = c(switchIdxSol+(1:nVar))'*solutionForward{i}.x;
+    solutionForward{i}.trials = lattice.graph{i}{path(i)}.model.extractXTrial(solutionForward{i}.primal);
+    solutionForward{i}.costWithoutTheta = c(switchIdxSol+(1:nVar))'*solutionForward{i}.primal;
     switchIdxSol = switchIdxSol + nVar;
 end
