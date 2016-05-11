@@ -129,8 +129,8 @@ for i=1:H
     solutionForward{i} = struct();
     scenarioCurrent = lattice.graph{i}{path(i)} ;
     nVar = size(scenarioCurrent.model.W,2);
-    solutionForward{i}.x = x(switchIdxSol+(1:nVar));
-    solutionForward{i}.xTrial = lattice.graph{i}{path(i)}.model.extractXTrial(solutionForward{i}.x);
+    solutionForward{i}.primal = x(switchIdxSol+(1:nVar));
+    solutionForward{i}.trials = lattice.graph{i}{path(i)}.model.extractXTrial(solutionForward{i}.x);
     solutionForward{i}.costWithoutTheta = c(switchIdxSol+(1:nVar))'*solutionForward{i}.x;
     switchIdxSol = switchIdxSol + nVar;
 end
