@@ -441,7 +441,7 @@ classdef Lattice
                 error('solutionForward should be a cell of H elements') ;
             end
             primalSolution = nan(size(variable)) ;
-            for t = 1:lattice.H  % Variables do *not* change from scenario to scenario
+            for t = 1:lattice.H
                 model = lattice.graph{t}{1}.model ;
                 primalSolution = model.updatePrimalSolution(primalSolution, variable, solutionForward{t}) ;
             end
