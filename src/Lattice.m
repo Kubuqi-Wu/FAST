@@ -268,6 +268,7 @@ classdef Lattice
         end
         
         function lattice = generateExpectedModels(lattice, ndls, params)
+            % Need to be rewritten anyway
             error('Not implemented yet') ;
         end
         
@@ -286,18 +287,12 @@ classdef Lattice
             lattice.graph{time}{index} = lattice.graph{time}{index}.addCut(cutCoeffs, cutRHS, params) ;
         end
         
+        % Display models
         function displayModels(lattice)
-        %DISPLAYMODELS Print all the NLDS models
-        %
-        % lattice.displayModels() prints, for each node, the model
-        %      NLDS(t,k) = min c' x(t) + cst
-        %                  W x(t) >= h(k) - T(k) x(t-1) 
-        % along with the variables and constraintes indices in modeling
-        % space (i.e., corresponding to x.ids and cntr.ids)
             for t = 1:lattice.H
                 for s = 1:length(lattice.graph{t})
                     fprintf('%d -- %d\n',t,s) ;
-                    disp('min c''x(t) + k s.t. Wx(t) >= h - Tx(t-1)') ;
+                    disp('min c''x(t)+k s.t. Wx(t) >= h - Tx(t-1)') ;
                     disp('c') ;
                     disp(lattice.graph{t}{s}.model.c)
                     disp('k') ;
@@ -316,19 +311,8 @@ classdef Lattice
             end
         end
         
+        % Plot the lattice
         function lattice = plotLattice(lattice,dataToString)
-        %PLOTLATTICE Plots the lattice
-        %
-        % lattice = lattice.PLOTLATTICE() plots the lattice,
-        % without creating a new figure.
-        % Each node is displayed as
-        %                         id
-        % lattice = lattice.PLOTLATTICE(dataToString) plots the lattice,
-        % without creating a new figure.
-        % Each node is displayed as
-        %                         id data       
-        % where data is the output of dataToString(scenario.data)
-        
             if nargin == 1
                 dataToString = @(data) '' ;
             elseif isempty(dataToString)
@@ -368,15 +352,8 @@ classdef Lattice
             hold off ;
         end
         
-        
+        % Return the nth deterministic path
         function path = deterministicPath(lattice, n)
-        %DETERMINISTICPATH Returns the nth deterministic path
-        %
-        % path = lattice.DETERMINISTICPATH(n) returns the nth deterministic
-        % path, where path = [i1 ; i2 ; ... ; iH] and where i1 ... iH are
-        % the indexes of the scenario (node) at each stage
-        %
-        % See also RANDOMPATH
             sce = [];
             path = zeros(lattice.H,1) ;
             for t=1:lattice.H
@@ -385,16 +362,8 @@ classdef Lattice
             end
         end
             
-        
+        % Return a random path
         function path = randomPath(lattice)
-        %RANDOMPATH Returns a random path in the lattice
-        %
-        % path = lattice.RANDOMPATH() returns a random path in the lattice
-        % path = [i1 ; i2 ; ... ; iH] where i1 ... iH are the indexes of
-        % the scenario (node) at each stage.
-        %
-        % See also DETERMINISTICPATH
-            
             sce = [];
             path = zeros(lattice.H,1);
             for t=1:lattice.H
@@ -404,9 +373,6 @@ classdef Lattice
         end
         
         function lattice = clearCuts(lattice)
-        %CLEARCUTS Remove all cuts
-        %
-        % lattice = lattice.CLEARCUTS() removes all cuts from lattice
             for i=1:lattice.H
                 for j=1:length(lattice.graph{i})
                     lattice.graph{i}{j}.model = lattice.graph{i}{j}.model.clearCuts();
@@ -431,71 +397,16 @@ classdef Lattice
         %   xVec(i) = lattice.getPrimalSolution(x, solution) ;        
         % end
         %
-        % See also FORWARDPASS, GETDUALSOLUTION
+        % See also FORWARDPASS
             if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
                 error('solutionForward should be a cell of H elements') ;
             end
             primalSolution = nan(size(variable)) ;
-            for t = 1:lattice.H % Variables do *not* change from scenario to scenario
+            for t = 1:lattice.H
                 model = lattice.graph{t}{1}.model ;
                 primalSolution = model.updatePrimalSolution(primalSolution, variable, solutionForward{t}) ;
             end
         end
-        
-        function dualSolution = getDualSolution(lattice, constraint, solutionForward)
-        %GETDUALSOLUTION Dual solution of a forward pass
-        %
-        % pi = lattice.GETDUALSOLUTION(constraint, solutionForward) (where
-        % solutionForward if the output of forwardpass) returns the values
-        % corresponding to constraint in pi.         
-        %
-        % ! Warning : You need to make sure you understand what you are doing
-        % here. The definition of the duals is not completely obvious. We
-        % here just return the duals of the constraint in a given forward
-        % pass. You may want to check getCuts which may make more sense in
-        % your application.
-        % 
-        % !! About the signs : dual multipliers are always a bit tricky to
-        % define. We use the relatively standard definition of sensitivity.
-        %
-        % !!! About constraint : to use this function, you need to have access
-        % to the actual constraint object used to define the NLDS. This
-        % means you may have to define the constraints *outside* of the
-        % NLDS function (like you already do for the variables).
-        % Note that, as opposed to variables, constraints are *not* the
-        % same accross the nodes of a given stage. If you provide
-        % constraints from different nodes of a given stage, the result is
-        % undefined (and, most likely, crap).
-        % Note that you then may NOT use the same constraint at different
-        % nodes at a given stage. If you do so, the result is underfined.
-        % 
-        % See also FORWARDPASS, GETPRIMALSOLUTION
-        
-            warning('Need to be double checked regarding the signs, especially with different solvers. Remove this warning if you feel confident !') ;
-        
-            if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
-                error('solutionForward should be a cell of H elements') ;
-            end
-            if numel(constraint) ~= 1
-                error('constraint should be a 1x1 sddpConstraint array') ;
-            end
-            
-            cntrIdx = constraint.id ;
-            for t = 1:lattice.H
-                for n = 1:length(lattice.graph{t}) % Constraints change from scenario to scenario
-                    cntrIdxHN = lattice.graph{t}{n}.model.modelCntrIdx ;
-                    found = find(cntrIdx == cntrIdxHN, 1) ;
-                    if ~ isempty(found)
-                        lambda = solutionForward{t}.dualCntr ;
-                        ids = cntrIdxHN ;                        
-                        dualSolution = constraint.dual(ids, lambda) ;
-                        return 
-                    end                    
-                end                
-            end 
-            error('constraint not found in the lattice') ;
-        end
-        
         
         function [cutsCoeffs, cutsRHS] = getCuts(lattice, time, scenarioId, variables)
         %GETCUTSCOEFFS Get cut coeffs and RHS at a given node
@@ -523,10 +434,6 @@ classdef Lattice
             end
             [cutsCoeffs, cutsRHS] = lattice.graph{time}{scenarioId}.model.getCutsCoeffs(variables) ;       
         end
-        
-        
-        
-        
         
         function lattice = initExpectedLattice(lattice, data)
             
@@ -557,6 +464,10 @@ classdef Lattice
     
     methods(Static)
         
+
+        function lattice = LatticeEasyProbaNonConst(H, nNodes, transitionProba, data)
+        % Constructor LatticeEasyProbaNonConst(H, nNodes, transitionProba, data)
+        %
         % Create simple lattice with 1 node at the top, nNode scenario at
         % each stage and transition probabilities described by transProb.
         % We assume serial independence.
@@ -565,9 +476,8 @@ classdef Lattice
         % from stage j. transitionProba should be of size nNodes x H-1
         % Data is optional, or can be empty.
         % If non-empty, data should be a function of two variables, time and
-        % index, returning some data to be stored in the node (time,index).
-        function lattice = LatticeEasyProbaNonConst(H, nNodes, transitionProba, data)
-            
+        % index, returning some data to be stored in the node (time,index). 
+        
             if H < 1
                 error('H should be >= 1') ;
             end
@@ -605,14 +515,17 @@ classdef Lattice
             
         end
         
+
+        function lattice = latticeEasyProbaConst(H, nNodes, transitionProba, data)
+        % Constructor latticeEasyProbaConst(H, nNodes, transitionProba, data)
+        %
         % Create a lattice with H stages, 1 node at the top, and where
         % transition probability from each node of stage t to the nNodes of
         % stage t+1 are given by transitionProba
         % Data is optional, or can be empty.
         % If non-empty, data should be a function of two variables, time and
         % index, returning some data to be stored in the node (time,index).
-        function lattice = latticeEasyProbaConst(H, nNodes, transitionProba, data)
-            
+        
             if H < 1
                 error('H should be >= 1') ;
             end
@@ -640,6 +553,60 @@ classdef Lattice
                 for i = 1:nNodes
                     if t < H
                         graph{t}{i} = Scenario(t, i, transitionProba, data(t,i)) ;
+                    else
+                        graph{t}{i} = Scenario(t, i, [], data(t,i)) ;
+                    end
+                end
+            end
+            lattice = Lattice(H, graph) ;
+            
+        end
+        
+        
+        
+
+        function lattice = latticeEasyMarkov(H, transitionProba, firstNode, data)
+        % Constructor latticeEasyMarkov(H, transitionProba, firstNode, data)
+        %
+        % Create a lattice with H stages, from the Markov chain defined by
+        % the matrix transitionProba (the value at index i,j represent the 
+        % probability of jumping from state i to state j).
+        % Variable firstNode represent the index of the initial state.
+        % If non-empty, data should be a function of two variables, time and
+        % index, returning some data to be stored in the node (time,index).
+            
+            nNodes = size(transitionProba,1);
+            
+            if(nNodes ~=  size(transitionProba,2) )
+                error('Matrix transitionProba should be square')
+            end
+            if H < 1
+                error('H should be >= 1') ;
+            end
+            if nNodes < 1
+                error('nNode should be >= 1') ;
+            end
+            if any(abs(sum(transitionProba,2)-1) > 1e-12)
+                error('Matrix transitionProba is not stochastic (the lines do not sum to 1, tol 1e-12)') ;
+            end
+            if any(any(transitionProba < 0))
+                error('Entries of transitionProba should be >= 0') ;
+            end
+            
+            if nargin == 3
+                data = @(t,i) [] ;
+            elseif isempty(data)
+                data = @(t,i) [] ;
+            end
+            
+            graph = cell(H,1) ;
+            graph{1} = cell(1,1) ;
+            graph{1}{1} = Scenario(1, 1, transitionProba(firstNode,:)', data(1,1)) ;
+            for t = 2:H
+                graph{t} = cell(nNodes,1) ;
+                for i = 1:nNodes
+                    if t < H
+                        graph{t}{i} = Scenario(t, i, transitionProba(i,:)', data(t,i)) ;
                     else
                         graph{t}{i} = Scenario(t, i, [], data(t,i)) ;
                     end

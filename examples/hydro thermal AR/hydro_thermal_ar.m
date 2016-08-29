@@ -23,7 +23,7 @@ var.p = sddpVar(H) ;
 var.r = sddpVar(H) ;
 var.q = sddpVar(H) ;
 var.l = sddpVar(H) ;
-lattice = compileLattice(lattice,@(scenario)nlds(scenario,var),params) ;                                    
+lattice = compileLattice(lattice,@(scenario)hydro_thermal_ar_nlds(scenario,var),params) ;                                    
 output = sddp(lattice,params) ;
 
 % Visualise output

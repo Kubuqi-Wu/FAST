@@ -6,8 +6,8 @@ clc ; clear all ; close all ;
 nNodes = 4;
 H = 2;
 demandVector = 1+(1:nNodes);
-lattice = Lattice.latticeEasy(H, nNodes, @(t,i) demand(t,i,demandVector,nNodes)) ;
-lattice = lattice.initExpectedLattice(@(t,i) demand(t,i,demandVector,nNodes)) ;
+lattice = Lattice.latticeEasy(H, nNodes, @(t,i) production_management_2_stages_demand(t,i,demandVector,nNodes)) ;
+lattice = lattice.initExpectedLattice(@(t,i) production_management_2_stages_demand(t,i,demandVector,nNodes)) ;
 
 
 % Run SDDP
@@ -20,8 +20,8 @@ params = sddpSettings('stop.iterationMax',20,...
                       'solver','gurobi') ;
 x = sddpVar(2,1) ; % 1 product to produce
 s = sddpVar(2,1) ; % and to sell
-lattice = compileLattice(lattice,@(scenario)nlds(scenario,x,s),params);
-lattice = compileExpectedLattice(lattice,@(scenario)nlds(scenario,x,s),params);
+lattice = compileLattice(lattice,@(scenario)production_management_2_stages_nlds(scenario,x,s),params);
+lattice = compileExpectedLattice(lattice,@(scenario)production_management_2_stages_nlds(scenario,x,s),params);
 
 output = sddp(lattice,params) ;
 lattice = output.lattice ;

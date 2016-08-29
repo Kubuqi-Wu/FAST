@@ -40,7 +40,7 @@ params = sddpSettings('algo.McCount',25, ...
 var.x = sddpVar(H) ; % The reservoir level at time t
 var.y = sddpVar(H) ; % For how much we use the water at time t
 var.p = sddpVar(H) ; % For how much we use the fuel generator at time t                  
-lattice = compileLattice(lattice,@(scenario)nlds(scenario,var),params) ;                                    
+lattice = compileLattice(lattice,@(scenario)hydro_thermal_nlds(scenario,var),params) ;                                    
 output = sddp(lattice,params) ;
 
 % Visualise output
