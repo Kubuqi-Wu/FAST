@@ -3,7 +3,7 @@ function  [x, duals, objOpt, diagnostics] = solveCPLEX(A, b, obj)
 % CPLEX solves
 % min c' x     s.t.
 %   Ax <= b
-options = optimset('display','off','MaxIter',1e6) ;
+options = cplexoptimset('display','off','MaxIter',1e6) ;
 [x,objOpt,exitflag,output,lambda] = cplexlp(obj,-A,-full(b),[],[],[],[],[],options) ;
 duals = lambda.ineqlin ;
 if exitflag == 1

@@ -132,7 +132,7 @@ lowerNames = lower(names) ;
 paramsType.runId = 'string' ;
 paramsType.verbose = [0 2] ;
 paramsType.debug = 'boolean' ;
-paramsType.solver = {'gurobi','linprog','mosek','glpk','cplex'} ;
+paramsType.solver = {'gurobi','linprog','mosek','glpk'} ;
 
 % Version
 paramsType.version.id = 'string' ;

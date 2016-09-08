@@ -37,7 +37,7 @@ elseif strcmpi(params.solver,'mosek')
 elseif strcmpi(params.solver,'glpk')    
     [x, duals, objOpt, diagnostics] = solveGlpk(A, b, c) ;
 elseif strcmpi(params.solver,'cplex')    
-    [x, duals, objOpt, diagnostics] = solveCPLEX(A, b, c) ;
+    [x, duals, objOpt, diagnostics] = solveMosek(A, b, c) ;
 else
     error('fast:solveLp:nonSupportedSolver','Non supported solver !') ;
 end             
