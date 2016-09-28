@@ -287,6 +287,18 @@ classdef Lattice
             lattice.graph{time}{index} = lattice.graph{time}{index}.addCut(cutCoeffs, cutRHS, params) ;
         end
         
+        % Keeps the last params.algo.purgeCutsNumber cuts at each node in the lattice
+        function lattice = purgeCuts(lattice, params)
+            if(~ params.algo.purgeCuts)
+                error('fast:lattice:purgeCutsIsFalse','purgeCuts should be true');
+            end
+            for t = 1:lattice.H
+                for s = 1:length(lattice.graph{t})
+                    lattice.graph{t}{s}.model = lattice.graph{t}{s}.model.purgeCuts(params.algo.purgeCutsNumber) ;
+                end
+            end
+        end
+        
         % Display models
         function displayModels(lattice)
         %DISPLAYMODELS Print all the NLDS models

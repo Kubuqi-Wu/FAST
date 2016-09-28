@@ -101,6 +101,14 @@ classdef NldsModel
             model.cutRHS = [model.cutRHS ; cutRHS];
         end
         
+        % Keeps the last nCuts cuts added in the model
+        function model = purgeCuts(model, nCuts) 
+            if(size(model.cutCoeffs, 1) > nCuts)
+                model.cutCoeffs = model.cutCoeffs(end-nCuts+1:end,:) ;
+                model.cutRHS = model.cutRHS(end-nCuts+1:end) ;
+            end
+        end
+        
         function [A,b,obj,k] = getOptiProb(model,xTrial,withoutTheta,params)
             % Return the folowing optimisation problem :
             %

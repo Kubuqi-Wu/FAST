@@ -129,6 +129,11 @@ while ~ converged
         converged = true ;
     end
     
+    % Purge cuts
+    if params.algo.purgeCuts
+        lattice = lattice.purgeCuts(params);
+    end
+    
     % Save to file
     if params.log.saveTempResults
         filename = [resultsFolder '/temp_' params.runId '_' num2str(iteration) '.mat'] ;
