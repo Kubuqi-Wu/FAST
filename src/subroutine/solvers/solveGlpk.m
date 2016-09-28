@@ -1,4 +1,4 @@
-function  [x, duals, objOpt, diagnostics] = solveGlpk(A, b, obj)
+function  [x, duals, objOpt, diagnostics] = solveGlpk(A, b, obj, param)
 
 % Glpk solves
 % min c' x      s.t.
@@ -14,7 +14,9 @@ sense = 1;
 % param.presol = 0;
 % param.lpsolver = 2;
 % param.dual = 2;
-param = struct();
+if(isempty(param))
+    param = struct();
+end
 [x, objOpt, status, extra] = glpk(obj,-A,full(-b),lb,ub,ctype,vartype,sense,param);
 
 if (status == 5)

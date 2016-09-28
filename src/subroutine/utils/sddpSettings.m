@@ -15,6 +15,8 @@ function params = sddpSettings(varargin)
 %   * verbose (1) : the level of verbose. 0 = nothing, 1 = standard, 2 =
 %   lot of information printed
 %   * solver ('linprog') : the solver to be used : 'linprog', 'mosek', 'gurobi', 'glpk'
+%   * solverOpts ([]) : the options to pass to the solver. If [], defaults
+%   options are used.
 %
 %   * log.useDiary (false) : true if you want to write the log file on disk, false otherwise
 %   * log.logFile ('sddp.log') : the name of the log file
@@ -26,9 +28,10 @@ function params = sddpSettings(varargin)
 %   * algo.McCount (5) : the number of monte-carlo trials to use at each
 %   iteration
 %   * algo.purgeCuts (false) : wether the algorithm should remove too old
-%   cuts
+%   cuts [not implemented]
 %   * algo.purgeCutsNumber (500) : the number of cuts to keep. The algorithm will 
-%   keep the last algo.purgeCutsNumber cuts while removing the older ones and the duplicates
+%   keep the last algo.purgeCutsNumber cuts while removing the older ones
+%   and the duplicates [not implemented]
 %   * algo.minTheta (-1e3) : the lower bound on theta. Necessary to avoid
 %   unboundedness at the beginning.
 %   * algo.deterministic (false) : true if you want to have a deterministic
@@ -85,6 +88,7 @@ names = {
     'verbose'
     'debug'
     'solver'
+    'solverOpts'
     
     % Version
     'version.id'
@@ -133,6 +137,7 @@ paramsType.runId = 'string' ;
 paramsType.verbose = [0 2] ;
 paramsType.debug = 'boolean' ;
 paramsType.solver = {'gurobi','linprog','mosek','glpk','cplex'} ;
+paramsType.solverOpts = 'struct or empty' ;
 
 % Version
 paramsType.version.id = 'string' ;
@@ -185,6 +190,7 @@ else
     params.verbose = 1 ;
     params.debug = false ;
     params.solver = 'linprog' ;
+    params.solverOpts = [] ;
     
     % Version
     params.version.id = '0.9.1b' ;
@@ -257,6 +263,10 @@ for idArg = paramstart:nargin
         if strcmp(type,'string')
             if ~ ischar(arg)
                 error('Argument %s (param %s) should be a string.',argStr, name) ;                
+            end
+        elseif strcmp(type,'struct or empty')
+            if ~ (isempty(arg) || isstruct(arg))
+                error('Argument %s (param %s) should be a struct or empty ([])',argStr, name) ;
             end
         elseif strcmp(type,'boolean')
             if ~ (arg == 0 || arg == 1)

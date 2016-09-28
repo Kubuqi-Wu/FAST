@@ -5,7 +5,7 @@ function [x, duals, objOpt, diagnostics] = solveLP(A, b, c, params)
 %   linear program 
 %       min c'x s.t.
 %           Ax >= b
-%   using the solver params.solver ('gurobi','linprog','mosek','glpk').
+%   using the solver params.solver ('gurobi','linprog','mosek','glpk','cplex').
 %   x is the optimal primal solution
 %   duals is the dual solution
 %   objOpt is the objective value at the optimal solution
@@ -28,16 +28,18 @@ if size(A, 2) ~= size(c, 1)
     error('fast:solveLP:dimensionsMismatch', 'A and c should have the same number of columns') ;
 end
 
+opts = params.solverOpts;
+
 if strcmpi(params.solver,'linprog')
-    [x, duals, objOpt, diagnostics] = solveLinprog(A, b, c) ;
+    [x, duals, objOpt, diagnostics] = solveLinprog(A, b, c, opts) ;
 elseif strcmpi(params.solver,'gurobi')    
-    [x, duals, objOpt, diagnostics] = solveGurobi(A, b, c) ;
+    [x, duals, objOpt, diagnostics] = solveGurobi(A, b, c, opts) ;
 elseif strcmpi(params.solver,'mosek')    
-    [x, duals, objOpt, diagnostics] = solveMosek(A, b, c) ;
+    [x, duals, objOpt, diagnostics] = solveMosek(A, b, c, opts) ;
 elseif strcmpi(params.solver,'glpk')    
-    [x, duals, objOpt, diagnostics] = solveGlpk(A, b, c) ;
+    [x, duals, objOpt, diagnostics] = solveGlpk(A, b, c, opts) ;
 elseif strcmpi(params.solver,'cplex')    
-    [x, duals, objOpt, diagnostics] = solveCPLEX(A, b, c) ;
+    [x, duals, objOpt, diagnostics] = solveCPLEX(A, b, c, opts) ;
 else
     error('fast:solveLp:nonSupportedSolver','Non supported solver !') ;
 end             

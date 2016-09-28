@@ -1,10 +1,12 @@
-function  [x, duals, objOpt, diagnostics] = solveCPLEX(A, b, obj)
+function  [x, duals, objOpt, diagnostics] = solveCPLEX(A, b, obj, opts)
 
 % CPLEX solves
 % min c' x     s.t.
 %   Ax <= b
-options = cplexoptimset('display','off') ;
-[x,objOpt,exitflag,output,lambda] = cplexlp(obj,-A,-full(b),[],[],[],[],[],options) ;
+if(isempty(opts))
+    opts = cplexoptimset('display','off') ;
+end
+[x,objOpt,exitflag,output,lambda] = cplexlp(obj,-A,-full(b),[],[],[],[],[],opts) ;
 duals = lambda.ineqlin ;
 if exitflag == 1
     diagnostics.solved = true ;

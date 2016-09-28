@@ -1,4 +1,8 @@
-function  [x, duals, objOpt, diagnostics] = solveMosek(A, b, obj)
+function  [x, duals, objOpt, diagnostics] = solveMosek(A, b, obj, opts)
+
+if(~ isempty(opts))
+    error('fast:solveMosek:optsNonEmpty','non-empty opts not supported for Mosek');
+end
 
 options = mskoptimset; % default options
 [cmd,verb,paramMosek] = msksetup(1,options);

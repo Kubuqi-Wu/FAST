@@ -1,10 +1,12 @@
-function  [x, duals, objOpt, diagnostics] = solveLinprog(A, b, obj)
+function  [x, duals, objOpt, diagnostics] = solveLinprog(A, b, obj, opts)
 
 % linprog solves
 % min c' x     s.t.
 %   Ax <= b
-options = optimset('display','off','MaxIter',1e6) ;
-[x,objOpt,exitflag,output,lambda] = linprog(obj,-A,-full(b),[],[],[],[],[],options) ;
+if(isempty(opts))
+    opts = optimset('display','off','MaxIter',1e6) ;
+end
+[x,objOpt,exitflag,output,lambda] = linprog(obj,-A,-full(b),[],[],[],[],[],opts) ;
 duals = lambda.ineqlin ;
 if exitflag == 1
     diagnostics.solved = true ;
