@@ -15,7 +15,7 @@ function params = sddpSettings(varargin)
 %   * verbose (1) : the level of verbose. 0 = nothing, 1 = standard, 2 =
 %   lot of information printed
 %   * solver ('linprog') : the solver to be used : 'linprog', 'mosek', 'gurobi', 'glpk'
-%   * solverOpts ([]) : the options to pass to the solver. If [], defaults
+%   * solverOpts ([]) : the options to pass to the solver. If [], default
 %   options are used.
 %
 %   * log.useDiary (false) : true if you want to write the log file on disk, false otherwise
@@ -254,6 +254,10 @@ for idArg = paramstart:nargin
         name = names{idName} ;
         if isa(arg, 'function_handle')
             argStr = func2str(arg) ;
+        elseif isstruct(arg)
+            argStr = 'struct' ;
+        elseif isempty(arg)
+            argStr = '[]' ;
         elseif ismatrix(arg) || ischar(arg)
             argStr = num2str(arg) ;
         else

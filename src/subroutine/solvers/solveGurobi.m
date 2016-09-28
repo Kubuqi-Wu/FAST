@@ -1,4 +1,4 @@
-function  [x, duals, objOpt, diagnostics] = solveGurobi(A, b, obj, gurobiParams)
+function  [x, duals, objOpt, diagnostics] = solveGurobi(A, b, obj, opts)
 
 % gurobi solves
 % min c' x      s.t.
@@ -10,10 +10,10 @@ gurobiModel.rhs = full(b) ;
 gurobiModel.lb = - inf * ones(size(obj)) ;
 gurobiModel.sense = '>' ;
 if(isempty(opts))
-    gurobiParams.outputflag = 0 ;
+    opts.outputflag = 0 ;
 end
 
-result = gurobi(gurobiModel, gurobiParams) ;
+result = gurobi(gurobiModel, opts) ;
 
 diagnostics = [] ;
 
