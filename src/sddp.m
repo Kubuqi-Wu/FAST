@@ -109,7 +109,7 @@ while ~ converged
     end
     
     % Check stopping criterion
-    if iteration <= params.stop.iterationMin || toc(startTimeAlgo) <= params.stop.timeMin
+    if iteration < params.stop.iterationMin || toc(startTimeAlgo) < params.stop.timeMin
         converged = false ;
     elseif iteration < params.stop.iterationMax && toc(startTimeAlgo) < params.stop.timeMax
         if params.stop.regular && convergedRegular

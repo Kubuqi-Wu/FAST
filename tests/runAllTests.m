@@ -1,5 +1,10 @@
 clc ; close all ; clear all ;
 
+purgeTest = matlab.unittest.TestSuite.fromClass(?PurgeCutsTests) ;
+run(purgeTest) ;
+
+clear all ;
+
 eVTest = matlab.unittest.TestSuite.fromClass(?EVTest) ;
 run(eVTest) ;
 
