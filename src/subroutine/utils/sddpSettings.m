@@ -28,10 +28,10 @@ function params = sddpSettings(varargin)
 %   * algo.McCount (5) : the number of monte-carlo trials to use at each
 %   iteration
 %   * algo.purgeCuts (false) : wether the algorithm should remove too old
-%   cuts [not implemented]
+%   cuts
 %   * algo.purgeCutsNumber (500) : the number of cuts to keep. The algorithm will 
 %   keep the last algo.purgeCutsNumber cuts while removing the older ones
-%   and the duplicates [not implemented]
+%   and the duplicates
 %   * algo.minTheta (-1e3) : the lower bound on theta. Necessary to avoid
 %   unboundedness at the beginning.
 %   * algo.deterministic (false) : true if you want to have a deterministic
