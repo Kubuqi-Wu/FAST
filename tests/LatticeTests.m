@@ -2,6 +2,27 @@ classdef LatticeTests < matlab.unittest.TestCase
     
     methods (Test)
         
+        function testLatticeEasyMarkov(testCase) 
+            H = 5;
+            N = 4;
+            P = [0.1 0.2 0.3 0.4 ;
+                 0.2 0.4 0.3 0.1 ;
+                 0.25 0.25 0.25 0.25 ;
+                 0.9 0.05 0.04 0.01] ;
+            lattice = Lattice.latticeEasyMarkov(H, P, 1) ;
+            for i = 1:N
+                testCase.verifyEqual(lattice.graph{1}{1}.transitionProba, P(1,:)');
+            end
+            for t = 2:H-1 
+                for i = 1:N
+                    testCase.verifyEqual(lattice.graph{t}{i}.transitionProba, P(i,:)');
+                end
+            end
+            for i = 1:N
+                testCase.verifyEqual(lattice.graph{H}{i}.transitionProba, []);
+            end
+        end
+        
         function testLatticeEasyProbaConst(testCase)            
             lattice = Lattice.latticeEasyProbaConst(5, 3, [0.3;0.1;0.6], @(t,i) t+i)  ;
             testCase.verifyEqual(lattice.H,5) ;

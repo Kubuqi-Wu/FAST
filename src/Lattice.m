@@ -674,7 +674,7 @@ classdef Lattice
             
             nNodes = size(transitionProba,1);
             
-            if(nNodes ~=  size(transitionProba,2) )
+            if(nNodes ~= size(transitionProba,2) )
                 error('Matrix transitionProba should be square')
             end
             if H < 1
@@ -686,7 +686,7 @@ classdef Lattice
             if any(abs(sum(transitionProba,2)-1) > 1e-12)
                 error('Matrix transitionProba is not stochastic (the lines do not sum to 1, tol 1e-12)') ;
             end
-            if any(any(transitionProba < 0))
+            if any(transitionProba(:) < 0)
                 error('Entries of transitionProba should be >= 0') ;
             end
             
