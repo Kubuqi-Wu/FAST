@@ -36,7 +36,7 @@ end
 % Check criterions
 peireiraLb = meanCost - pereiraCoef * stdVal / sqrt(McCount) ;
 peireiraUb = meanCost + pereiraCoef * stdVal / sqrt(McCount) ;
-pereiraCriterionMet = lowerBound >= peireiraLb ;
+pereiraCriterionMet = (peireiraLb <= lowerBound) && (lowerBound <= peireiraUb) ;
 stdMcCriterionMet = stdVal / sqrt(McCount) <= stdMcCoef * abs(lowerBound) ;
 
 % Return wether, according to stopWhen, we should stop or not

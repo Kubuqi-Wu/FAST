@@ -1,7 +1,7 @@
 % How to create a simple lattice
 clc ; close all ; clear all ;
 
-% Creating a simple 2 stages lattice with 4 nodes at second stage
+% Creating a simple 2 stages lattice with 2 nodes at second stage
 lattice = Lattice.latticeEasy(2, 2, @optimize_stock_demand) ; % 2 stages with 2 nodes at each stage
 lattice = lattice.initExpectedLattice(@optimize_stock_demand);
 
@@ -14,7 +14,7 @@ params = sddpSettings('algo.McCount',2, ...
                       'stop.iterationMax',10,...                      
                       'precise.computeEnd',true,...
                       'precise.count',20,...
-                      'solver','gurobi') ;
+                      'solver','linprog') ;
 var.x = sddpVar(1,1) ;
 var.s = sddpVar(1,1) ;                 
 lattice = compileLattice(lattice,@(scenario)optimize_stock_nlds(scenario,var),params) ;     

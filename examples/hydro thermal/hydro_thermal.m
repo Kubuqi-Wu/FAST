@@ -19,9 +19,9 @@
 % This will iterate over all possible samples in order to build an exact
 % meanCost, hence providing the exact solution.
 
-
 % How to create a simple lattice
 clc ; close all ; clear all ;
+rng(100); % To avoid some issues with linprog
 
 H = 5 ;
 
@@ -36,7 +36,7 @@ lattice.plotLattice(@(data) num2str(data)) ;
 params = sddpSettings('algo.McCount',25, ...
                       'stop.iterationMax',10,...                      
                       'stop.pereiraCoef',2,...                   
-                      'solver','gurobi') ;
+                      'solver','linprog') ;
 var.x = sddpVar(H) ; % The reservoir level at time t
 var.y = sddpVar(H) ; % For how much we use the water at time t
 var.p = sddpVar(H) ; % For how much we use the fuel generator at time t                  

@@ -1,10 +1,13 @@
-% How to create a simple lattice
+% In this example we noticed that linprog wasn't robust enough
+% It is advised to use another solver (e.g. gurobi) ; 
+% you may still change the solver below (around line 45) and use linprog if
+% desired
 clc ; clear all ; close all ;
 
 % The number of stages
 H = 4 ;
 
-% The number of product
+% The number of scenarios
 N = 3 ;
 
 % Cost of production
@@ -23,7 +26,7 @@ for i=1:N
     transitionProba(i,i) = randVector(i);
 end
 
-% We star at the second node
+% We start at the second node
 firstNode = 2;
 
 % Creating a simple H stages lattice with 2 nodes at second stage
@@ -32,14 +35,15 @@ lattice = Lattice.latticeEasyMarkov(H, transitionProba, firstNode) ;
 
 % Visualisation
 figure ;
-lattice.plotLattice(@(data) ['d = ' num2str(data)]) ;
+lattice.plotLattice() ;
 
 % Run SDDP
-params = sddpSettings('algo.McCount',4,...
-                      'stop.pereiraCoef',0.0000,...
+params = sddpSettings('algo.McCount',25,...
+                      'stop.pereiraCoef',0.1,...
+                      'stop.iterationMax',10,...
                       'verbose',1,...
                       'algo.minTheta',-1e3,...
-                      'solver','linprog') ;
+                      'solver','gurobi') ; % Linprog is not robust enough for this example
 var.x = sddpVar(N,H-1) ;
 var.s = sddpVar(N,H-1) ;
 lattice = lattice.compileLattice(@(scenario)production_management_markov_nlds(scenario,var,H,C,S),params) ; 
