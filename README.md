@@ -9,7 +9,7 @@
 
 FAST is open-source. See `LICENSE` for the license, and `INSTALL.md` for installation instructions
 
-See the toolbox website, currently hosted [here](http://baemerick.be/fast/)
+See the toolbox website, currently hosted [here](http://baemerick.be/fast/) (The website is down as of 11/18/16, we're going to change where is it hosted soon). 
 
 Authors: [Leopold Cambier](https://people.stanford.edu/lcambier) and Damien Scieur
 
