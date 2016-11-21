@@ -241,21 +241,35 @@ classdef Lattice
                 end
             end
             
-            % 6) We finally check that the W matrix is the same across the
-            % nodes at a given stage
+            % 6) We need to check that when W varies across nodes at a
+            % given stage, T is zero (ie no influence of x(t-1)            
             if regular
                 for t = 1:H
                     nNodes = length(lattice.graph{t}) ;
-                    W1 = lattice.graph{t}{1}.model.W ;
-                    for n = 2:nNodes
-                        WN = lattice.graph{t}{n}.model.W ;
-                        if any(size(W1) ~= size(WN)) || ...
-                                any(W1(:) ~= WN(:))
-                            error('The constraints involving x(t) (i.e. the W matrix) should be the same at a given stage') ;
+                    for n1 = 1:nNodes
+                        for n2 = n1+1:nNodes
+                        	W1 = lattice.graph{t}{1}.model.W ;
+                            T1 = lattice.graph{t}{1}.model.T ;   
+                            W2 = lattice.graph{t}{n}.model.W ;
+                            T2 = lattice.graph{t}{n}.model.T ;
+                            % Look at where they differ
+                            sameSize = (size(W1) == size(W2));
+                            if ~ sameSize
+                                error('There should be a same number of constraints at every node at a given stage.')
+                            end
+                            sameW    = all(W1 == W2, 2);
+                            idxDiff  = find(~ sameW);
+                            % For those indices, check that the row in T is
+                            % zero
+                            for i = idxDiff
+                                if norm(T1(i,:)) ~= 0 || norm(T2(i,:)) ~= 0
+                                    error('The constraints involving x(t) (i.e. the W matrix) can only be different across nodes at a given stage if there is no dependance with x(t-1). Note that the matrices should still have the same size.') ;
+                                end
+                            end   
                         end
-                    end
+                    end                                                     
                 end
-            end
+            end                        
         end
         
         function lattice = compileExpectedLattice(lattice, nlds, params)
