@@ -247,25 +247,28 @@ classdef Lattice
                 for t = 1:H
                     nNodes = length(lattice.graph{t}) ;
                     for n1 = 1:nNodes
-                        for n2 = n1+1:nNodes
-                        	W1 = lattice.graph{t}{1}.model.W ;
-                            T1 = lattice.graph{t}{1}.model.T ;   
-                            W2 = lattice.graph{t}{n}.model.W ;
-                            T2 = lattice.graph{t}{n}.model.T ;
+                        W1 = lattice.graph{t}{n1}.model.W ;
+                        T1 = lattice.graph{t}{n1}.model.T ;   
+                        % Look at where W has some x(t-1) on the right, ie
+                        % in T1
+                        rowsNonZeroT1 = all(T1, 2);
+                        Wnz1 = W1(rowsNonZeroT1,:);                        
+                        for n2 = 1:nNodes
+                            W2 = lattice.graph{t}{n2}.model.W ;
+                            T2 = lattice.graph{t}{n2}.model.T ;  
+                        	rowsNonZeroT2 = all(T2, 2);
+                            Wnz2 = W2(rowsNonZeroT2,:);                            
+                            % Those 2 Wnz1 and 2 should be the same
                             % Look at where they differ
-                            sameSize = (size(W1) == size(W2));
-                            if ~ sameSize
-                                error('There should be a same number of constraints at every node at a given stage.')
+                            sameSize = all(size(Wnz1) == size(Wnz2));                             
+                            errMsg = 'The constraints involving x(t) (i.e. the W matrix) can only be different across nodes at a given stage if there is no dependance with x(t-1).' ;
+                            if (~ sameSize) 
+                                error(errMsg);                            
                             end
-                            sameW    = all(W1 == W2, 2);
-                            idxDiff  = find(~ sameW);
-                            % For those indices, check that the row in T is
-                            % zero
-                            for i = idxDiff
-                                if norm(T1(i,:)) ~= 0 || norm(T2(i,:)) ~= 0
-                                    error('The constraints involving x(t) (i.e. the W matrix) can only be different across nodes at a given stage if there is no dependance with x(t-1). Note that the matrices should still have the same size.') ;
-                                end
-                            end   
+                            diff = Wnz1 ~= Wnz2 ;                     
+                            if any(diff(:))
+                                error(errMsg);
+                            end
                         end
                     end                                                     
                 end
