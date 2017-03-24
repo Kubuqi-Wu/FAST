@@ -84,7 +84,7 @@ while ~ converged
     % Iteration info
     displayMessage(sprintf('-------------\nIteration %d\n-------------', iteration), params, 1) ;
     startTime = tic() ;
-    solutionForward = cell(H, McCount);
+    solutionForward = cell(McCount,1);
     
     % Forward pass
     for Mc = 1:McCount
@@ -94,7 +94,7 @@ while ~ converged
         else
             path = lattice.randomPath() ;
         end              
-        [~,~,~,solutionForward(:,Mc)] = forwardPass(lattice, path, params) ;
+        [~,~,~,solutionForward{Mc,1}] = forwardPass(lattice, path, params) ;
     end
     
     % Backward pass

@@ -23,22 +23,25 @@ function [objectiveVal,costByStage,lbByStage,solutionForward] = forwardPass(latt
 H = lattice.getH();
 costByStage = zeros(H,1);
 lbByStage = zeros(H,1);
-solutionForward = cell(H,1);
+solutionForward.solutionForwardCells = cell(H,1);
+solutionForward.path = zeros(H,1);
 scenarioCurrent = [] ;
 for time = 1:H   
     if isnumeric(path)
-        scenarioCurrent = lattice.graph{time}{path(time)} ;              
+        scenarioCurrent = lattice.graph{time}{path(time)} ;
+        solutionForward.path(time) = path(time);
     elseif strcmp(path,'random')
         scenarioCurrent = lattice.nextRandomScenario(scenarioCurrent) ;
+        solutionForward.path(time) = scenarioCurrent.index;
     else    
         error('fast::forwardPass::path should either be a vector of index or ''random''.') ;
     end
     if(time > 1)
-        solutionForward{time} = scenarioCurrent.solve(solutionForward{time-1}, time==H, params) ;
+        solutionForward.solutionForwardCells{time} = scenarioCurrent.solve(solutionForward.solutionForwardCells{time-1}, time==H, params) ;
     else
-        solutionForward{1}    = scenarioCurrent.solve([], time==H, params) ;
+        solutionForward.solutionForwardCells{1}    = scenarioCurrent.solve([], time==H, params) ;
     end
-    costByStage(time) = solutionForward{time}.costWithoutTheta ;
-    lbByStage(time) = solutionForward{time}.costWithTheta ;
+    costByStage(time) = solutionForward.solutionForwardCells{time}.costWithoutTheta ;
+    lbByStage(time) = solutionForward.solutionForwardCells{time}.costWithTheta ;
 end
 objectiveVal = sum(costByStage);

@@ -465,14 +465,15 @@ classdef Lattice
         %   xVec(i) = lattice.getPrimalSolution(x, solution) ;        
         % end
         %
-        % See also FORWARDPASS, GETDUALSOLUTION
-            if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
-                error('solutionForward should be a cell of H elements') ;
+        % See also FORWARDPASS, GETDUALSOLUTION, GETDATASOLUTION
+            solutionForwardCells = solutionForward.solutionForwardCells;
+            if numel(solutionForwardCells) ~= lattice.H || ~ iscell(solutionForwardCells)
+                error('solutionForward.solutionCells should be a cell of H elements') ;
             end
             primalSolution = nan(size(variable)) ;
             for t = 1:lattice.H  % Variables do *not* change from scenario to scenario
                 model = lattice.graph{t}{1}.model ;
-                primalSolution = model.updatePrimalSolution(primalSolution, variable, solutionForward{t}) ;
+                primalSolution = model.updatePrimalSolution(primalSolution, variable, solutionForwardCells{t}) ;
             end
         end
 
@@ -504,12 +505,13 @@ classdef Lattice
         % Note that you then may NOT use the same constraint at different
         % nodes at a given stage. If you do so, the result is underfined.
         % 
-        % See also FORWARDPASS, GETPRIMALSOLUTION
+        % See also FORWARDPASS, GETPRIMALSOLUTION, GETDATAFSOLUTION
         
             warning('Need to be double checked regarding the signs, especially with different solvers. Remove this warning if you feel confident !') ;
         
-            if numel(solutionForward) ~= lattice.H || ~ iscell(solutionForward)
-                error('solutionForward should be a cell of H elements') ;
+            solutionForwardCells = solutionForward.solutionForwardCells;
+            if numel(solutionForwardCells) ~= lattice.H || ~ iscell(solutionForwardCells)
+                error('solutionForward.solutionCells should be a cell of H elements') ;
             end
             if numel(constraint) ~= 1
                 error('constraint should be a 1x1 sddpConstraint array') ;
@@ -521,7 +523,7 @@ classdef Lattice
                     cntrIdxHN = lattice.graph{t}{n}.model.modelCntrIdx ;
                     found = find(cntrIdx == cntrIdxHN, 1) ;
                     if ~ isempty(found)
-                        lambda = solutionForward{t}.dualCntr ;
+                        lambda = solutionForwardCells{t}.dualCntr ;
                         ids = cntrIdxHN ;                        
                         dualSolution = constraint.dual(ids, lambda) ;
                         return 
@@ -532,8 +534,50 @@ classdef Lattice
         end
         
         
-
+    
+        function dataSolution = getDataSolution(lattice, solutionForward)
+        % GETDATASOLUTIONS Returns the data of the nodes used during the
+        % forward pass.
+        %
+        % [dataSolution] = lattice.GETDATASOLUTION(solutionForward)
+        % return a structure dataForwardPass where
+        %   - dataSolution.path is a array of size Hx1 of indexes
+        %     representing the path taken during the forward pass,
+        %   - dataSolution.data is a cell array of size Hx1, where 
+        %     dataSolution.data{t} contains the data stored in the node 
+        %     of index dataForwardPass.path(t) at stage t.
+        %
+        % See also FORWARDPASS, GETPRIMALSOLUTION, GETDUALSOLUTION
         
+            dataSolution.path = solutionForward.path;
+            
+            if numel(solutionForward.path) ~= lattice.H || ~ isvector(solutionForward.path)
+                error('solutionForward.path should be a vector of H elements') ;
+            end
+            dataSolution.data = lattice.getDataPath(dataSolution.path);
+        end
+        
+        
+        function dataPath = getDataPath(lattice, path)
+        % GETDATAPATH Returns the data of the nodes contained in path.
+        %
+        % [dataPath] = lattice.GETDATAPATH(path)
+        % return a cell array of size Hx1, where dataPath{t} contains the 
+        % data stored in the node of index path(t) at stage t.
+        %
+        % See also FORWARDPASS, GETPRIMALSOLUTION, GETDUALSOLUTION
+            if numel(path) ~= lattice.H || ~ isvector(path)
+                error('Variable path should be a vector of H elements') ;
+            end
+            
+            dataPath = cell(lattice.H,1);
+            
+            for t=1:lattice.H
+                dataPath{t} = lattice.graph{t}{path(t)}.data;
+            end
+        end
+        
+    
         function [cutsCoeffs, cutsRHS] = getCuts(lattice, time, scenarioId, variables)
         %GETCUTSCOEFFS Get cut coeffs and RHS at a given node
         %

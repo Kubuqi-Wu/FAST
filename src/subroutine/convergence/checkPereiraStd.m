@@ -4,13 +4,13 @@ stopWhen = params.stop.stopWhen ; % 'pereira', 'std', 'pereira and std', 'never'
 pereiraCoef = params.stop.pereiraCoef ;
 stdMcCoef = params.stop.stdMcCoef ; 
 
-H       = size(solutionForward, 1) ;
-McCount = size(solutionForward, 2) ;
+McCount = size(solutionForward, 1) ;
+H       = size(solutionForward{1}.solutionForwardCells, 1) ;
 
 % LowerBound
 costFirstStage = zeros(McCount, 1) ;
 for m = 1:McCount
-    costFirstStage(m) = solutionForward{1,m}.costWithTheta ; % If we have only one node at first stage, they should all be the same
+    costFirstStage(m) = solutionForward{m,1}.solutionForwardCells{1,1}.costWithTheta ; % If we have only one node at first stage, they should all be the same
 end
 if params.algo.deterministic
     lowerBound = dot(lattice.scenarioTableProba,costFirstStage) ;
@@ -22,7 +22,7 @@ end
 cost = zeros(H, McCount) ;
 for t = 1:H
     for m = 1:McCount
-        cost(t,m) = solutionForward{t,m}.costWithoutTheta ;
+        cost(t,m) = solutionForward{m,1}.solutionForwardCells{t,1}.costWithoutTheta ;
     end
 end
 cost = sum(cost,1) ;

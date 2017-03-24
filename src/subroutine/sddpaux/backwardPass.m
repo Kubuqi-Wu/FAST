@@ -1,16 +1,23 @@
 function lattice = backwardPass(lattice,solutionForward,params)
 % BACKWARDPASS Run all backward passes on the lattice
 %
-% lattice = FORWARDPASS(lattice, solutionForward, params)
+% lattice = BACKWARDPASS(lattice, solutionForward, params)
 %   runs all backward passes on the lattice lattice given the
 %   solutionForward
 %
 %   See also SDDP, LATTICE, SDDPSETTINGS, FORWARDPASS
 
 H = lattice.getH() ;
-McCount = size(solutionForward, 2) ;
-if H ~= size(solutionForward, 1)
-    error('fast::backwardPass solutionForward should be of size [H x McCount]') ;
+McCount = size(solutionForward, 1) ;
+if(size(solutionForward, 2)~= 1)
+    error('fast::backwardPass solutionForward should be of size [1 x McCount]') ;
+end
+for i=1:McCount
+    
+    if H ~= size(solutionForward{i}.solutionForwardCells, 1)
+        error('fast::backwardPass solutionForward.solutionForwardCells should be of size [H x 1]') ;
+    end
+    % break; Should we always check everything or only the first is enough?
 end
 
 for time = H:-1:2
@@ -27,7 +34,7 @@ for time = H:-1:2
                 break ;
             end
             displayMessage(sprintf('%d) %d - %d backward pass', Mc, time, scenarioCurrent.getIndex()), params, 2) ;
-            solutionBackward = scenarioCurrent.solve(solutionForward{time-1,Mc}, time==H, params) ;
+            solutionBackward = scenarioCurrent.solve(solutionForward{Mc,1}.solutionForwardCells{time-1}, time==H, params) ;
             for idxPrevious = 1:L
                 [cutCoeffs{idxPrevious, Mc}, cutRHS(idxPrevious, Mc)] = buildCut(cutCoeffs{idxPrevious, Mc}, cutRHS(idxPrevious, Mc), solutionBackward, scenarioPreviousCells{idxPrevious}, scenarioCurrent);
             end
