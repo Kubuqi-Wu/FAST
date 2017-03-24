@@ -54,7 +54,14 @@ x = zeros(nForward,H);
 y = zeros(nForward,H);
 p = zeros(nForward,H);
 for  i = 1:nForward
-    [objVec(i),~,~,solution] = forwardPass(lattice,'random',params) ;    
+    [objVec(i),~,~,solution] = forwardPass(lattice,'random',params) ; 
+    
+%     % In the case you want to recover the path, use these lines instead 
+%     % of the previous one. Variable randomPath(t) contains the index of 
+%     % the scenario used at time t.
+%     randomPath = lattice.randomPath();
+%     [objVec(i),~,~,solution] = forwardPass(lattice,randomPath,params) ; 
+
     x(i,:) = lattice.getPrimalSolution(var.x, solution) ;
     y(i,:) = lattice.getPrimalSolution(var.y, solution) ;
     p(i,:) = lattice.getPrimalSolution(var.p, solution) ;
