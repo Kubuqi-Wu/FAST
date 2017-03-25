@@ -23,7 +23,8 @@ end
 % the trials
 varAllStages = [variables.ids]' ;
 H = lattice.getH() ;
-solutionForward = cell(H, 1) ;
+solutionForward = cell(1, 1) ;
+solutionForward{1}.solutionForwardCells = cell(H, 1);
 for t = 1:H-1
     % Get the x at stage i
     model = lattice.graph{t}{1}.model ; % Structure is uniform accross nodes at a given stage
@@ -36,7 +37,7 @@ for t = 1:H-1
         end
         valStageI(i) = values(idxi) ;
     end   
-    solutionForward{t}.trials = model.extractXTrial(valStageI) ;
+    solutionForward{1}.solutionForwardCells{t}.trials = model.extractXTrial(valStageI) ;
 end
 
 % Run the backwardPass !

@@ -5,10 +5,10 @@ UBMC = params.precise.count  ;
 displayMessage(sprintf('Computing precise Mean Forward Cost wiht %d Monte-Carlo samples.',UBMC),params,1) ;
 H = lattice.H ;
 startTimePrecise = tic() ;
-solutionForwardPrecise = cell(H,UBMC);            
+solutionForwardPrecise = cell(UBMC,1);            
 % Computation   
-for McPrecise = 1:UBMC    
-    [~,~,~,solutionForwardPrecise(:,McPrecise)] = forwardPass(lattice,'random',params) ;    
+for McPrecise = 1:UBMC
+    [~,~,~,solutionForwardPrecise{McPrecise,1}] = forwardPass(lattice,'random',params) ;    
 end                
 % Convergence check  
 [converged, lowerBound, meanCost, stds] = checkPereiraStd(lattice, solutionForwardPrecise, params) ;

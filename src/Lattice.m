@@ -505,7 +505,7 @@ classdef Lattice
         % Note that you then may NOT use the same constraint at different
         % nodes at a given stage. If you do so, the result is underfined.
         % 
-        % See also FORWARDPASS, GETPRIMALSOLUTION, GETDATAFSOLUTION
+        % See also FORWARDPASS, GETPRIMALSOLUTION, GETDATASOLUTION
         
             warning('Need to be double checked regarding the signs, especially with different solvers. Remove this warning if you feel confident !') ;
         

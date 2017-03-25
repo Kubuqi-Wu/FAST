@@ -13,11 +13,9 @@ if(size(solutionForward, 2)~= 1)
     error('fast::backwardPass solutionForward should be of size [1 x McCount]') ;
 end
 for i=1:McCount
-    
     if H ~= size(solutionForward{i}.solutionForwardCells, 1)
         error('fast::backwardPass solutionForward.solutionForwardCells should be of size [H x 1]') ;
     end
-    % break; Should we always check everything or only the first is enough?
 end
 
 for time = H:-1:2

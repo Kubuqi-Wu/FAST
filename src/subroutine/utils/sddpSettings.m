@@ -206,7 +206,7 @@ else
     
     % Algorithm
     params.algo.McCount = 5 ; 
-    params.algo.purgeCuts = true ; 
+    params.algo.purgeCuts = false ; 
     params.algo.purgeCutsNumber = 500 ; 
     params.algo.minTheta = -1e3 ;
     params.algo.deterministic = false ;

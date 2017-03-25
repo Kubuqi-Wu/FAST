@@ -106,7 +106,7 @@ classdef SddpDeterministicTest < matlab.unittest.TestCase
             testCase.verifyEqual(output.meanCost(end),20.75) ;
             testCase.verifyEqual(output.lowerBounds(end),20.75) ;
             for s = 1:4
-                testCase.verifyEqual(output.solution{1,s}.primal(1),5) ;
+                testCase.verifyEqual(output.solution{s}.solutionForwardCells{1}.primal(1),5) ;
             end            
             % Getting solution at time 1
             nForward = 10 ;
