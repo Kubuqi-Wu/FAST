@@ -6,27 +6,20 @@ function  [x, duals, objOpt, diagnostics] = solveLinprog(A, b, obj, opts)
 if(isempty(opts))
     opts = optimoptions(@linprog,'display','off','MaxIter',1e6) ;
 end
-opts = optimoptions(@linprog,opts,'algorithm','interior-point-legacy') ;
+opts = optimoptions(@linprog,opts,'algorithm','Dual-Simplex') ;
 [x,objOpt,exitflag,output,lambda] = linprog(obj,-A,-full(b),[],[],[],[],[],opts) ;
 
 if(exitflag<=0)
-    warning('Linprog with legacy interrior-point failed. Trying dual-simplex.')
-    exitflag
-    opts = optimoptions(@linprog,opts,'algorithm','Dual-Simplex') ;
-    [x,objOpt,exitflag,output,lambda] = linprog(obj,-A,-full(b),[],[],[],[],[],opts) ;
-end
-
-if(exitflag<=0)
-    warning('Linprog with dual-simplex failed. Trying medium-scale interior-points.')
+    warning('Linprog with dual-simplex failed. Trying interior-point.')
     exitflag
     opts = optimoptions(@linprog,opts,'algorithm','interior-point') ;
     [x,objOpt,exitflag,output,lambda] = linprog(obj,-A,-full(b),[],[],[],[],[],opts) ;
 end
 
 if(exitflag<=0)
-    warning('Linprog with medium-scale interior-points failed. Trying active-set.')
+    warning('Linprog with dual-simplex failed. Trying legacy interior-points.')
     exitflag
-    opts = optimoptions(@linprog,opts,'algorithm','active-set') ;
+    opts = optimoptions(@linprog,opts,'algorithm','interior-point-legacy') ;
     [x,objOpt,exitflag,output,lambda] = linprog(obj,-A,-full(b),[],[],[],[],[],opts) ;
 end
 
