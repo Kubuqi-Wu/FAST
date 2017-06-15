@@ -6,7 +6,7 @@ end
 
 options = mskoptimset; % default options
 [cmd,verb,paramMosek] = msksetup(1,options);
-[~,b,cmosek,u,l] = mskcheck('linprog',verb,length(obj),size(A),b,[0,0],[],[],[]);
+[~,b,cmosek,l,u] = mskcheck('linprog',verb,length(obj),size(A),b,[0,0],[],[],[]);
 [numineq,~] = size(A);
 prob.a = -A;
 prob.c = obj;
