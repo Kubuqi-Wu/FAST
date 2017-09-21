@@ -2,6 +2,49 @@ classdef LatticeTests < matlab.unittest.TestCase
     
     methods (Test)
         
+        function testLatticeEasyMarkovNonconst(testCase)
+            % Constant number of nodes
+            H = 8;
+            N = 4;
+            P1 = eye(N);
+            P2 = fliplr(eye(N));
+            P = cell(H-1,1);
+            P{1} = ones(1,N)/N;
+            for t=2:H-1
+                coeff = (t-2)/(H-3);
+                P{t} = coeff*P1 + (1-coeff)*P2;
+            end
+            lattice = Lattice.latticeEasyMarkovNonConst(H, P) ;
+            
+            for t = 1:H 
+                for i = 1:N
+                    testCase.verifyEqual(lattice.graph{t}{i}.transitionProba, P{t}(i,:)');
+                end
+            end
+            
+            % Different numbers of nodes
+            N = randi(10,1,H-1);
+            oldN = 1;
+            P = cell(H-1,1);
+            for t=1:H-1
+                % Create random stoch. matrix
+                M = rand(oldN,N(t));
+                for row=1:oldN
+                    M(row,:) = M(row,:)/sum(M(row,:));
+                end
+                P{t} = M;
+                oldN = N(t);
+            end
+            lattice = Lattice.latticeEasyMarkovNonConst(H, P) ;
+            
+            for t = 1:H 
+                for i = 1:N
+                    testCase.verifyEqual(lattice.graph{t}{i}.transitionProba, P{t}(i,:)');
+                end
+            end
+            
+        end
+        
         function testLatticeEasyMarkov(testCase) 
             H = 5;
             N = 4;
