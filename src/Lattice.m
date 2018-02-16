@@ -820,6 +820,9 @@ classdef Lattice
                     error('Entries of transitionProba should be >= 0') ;
                 end
             end
+            if size(transitionProba{1},1) ~= 1
+                error(['At stage t=1, the number of row should be 1.']) ;
+            end
             % Check consistency of sizes between stages
             oldSize = size(transitionProba{1},2);
             for t=2:H-1
