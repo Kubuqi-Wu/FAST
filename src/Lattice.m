@@ -787,6 +787,75 @@ classdef Lattice
         end
         
         
+        function lattice = latticeEasyMarkovNonConst(H, transitionProba, data)
+        % Constructor latticeEasyMarkovNonConst(H, transitionProba, firstNode, data)
+        %
+        % Create a lattice with H stages, from the time-varying Markov 
+        % chain defined by the cell array of matrices transitionProba (the 
+        % value at cell {t}, index i,j represent the probability of jumping 
+        % from state i to state j at time t).
+        % Variable firstNode represent the index of the initial state.
+        % If non-empty, data is a function of two variables, time and 
+        % index, returning some data to be stored in the node (time,index).
+            
+            if(~iscell(transitionProba))
+                error('Argument transitionProba should be a cell array.')
+            end
+        
+            if(numel(transitionProba) ~= length(transitionProba))
+                error('Argument transitionProba should be a cell array of *dimension one*.')
+            end
+            
+            if(length(transitionProba) ~= H-1)
+                error('Argument transitionProba should be of length H-1.')
+            end
+        
+            % Some check
+            % Check proba
+            for t=1:H-1
+                if any(abs(sum(transitionProba{t},2)-1) > 1e-12)
+                    error(['Matrix transitionProba is not stochastic (the lines do not sum to 1, tol 1e-12) at time ', num2str(t)]) ;
+                end
+                if any(transitionProba{t}(:) < 0)
+                    error('Entries of transitionProba should be >= 0') ;
+                end
+            end
+            % Check consistency of sizes between stages
+            oldSize = size(transitionProba{1},2);
+            for t=2:H-1
+                newSize = size(transitionProba{t},1);
+                if(oldSize ~= newSize)
+                    error(['At stage t=',num2str(t),', the number of row does not match the number of column of the previous stage.']) ;
+                end
+                oldSize = size(transitionProba{t},2);
+            end
+            
+            
+            if nargin == 2
+                data = @(t,i) [] ;
+            elseif isempty(data)
+                data = @(t,i) [] ;
+            end
+            
+            graph = cell(H,1) ;
+            graph{1} = cell(1,1) ;
+            graph{1}{1} = Scenario(1, 1, transitionProba{1}', data(1,1)) ;
+            for t = 2:H
+                nNodes = size(transitionProba{t-1},2);
+                graph{t} = cell(nNodes,1) ;
+                for i = 1:nNodes
+                    if t < H
+                        graph{t}{i} = Scenario(t, i, transitionProba{t}(i,:)', data(t,i)) ;
+                    else
+                        graph{t}{i} = Scenario(t, i, [], data(t,i)) ;
+                    end
+                end
+            end
+            lattice = Lattice(H, graph) ;
+            
+        end
+        
+        
         % Create simple lattice with 1 node at the top, nNode scenario at
         % each stage and equals transition probabilities.
         % Data is optional, or can be empty.
