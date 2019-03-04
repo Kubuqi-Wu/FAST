@@ -1,5 +1,7 @@
 # README
 
+Note: this code hasn't and won't be maintained. It was a one-shot projet, but not something I can spend time on.
+
 **FAST** (Finally An Sddp Toolbox), an sddp toolbox written in Matlab.
 
 - `src` contains sources files.
